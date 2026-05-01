@@ -118,7 +118,7 @@ class Tray(widgets.Box):
 
 
 class SystemInfoTray:
-    def __init__(self, localsend_widget=None):
+    def __init__(self):
         self.tray_widget = Tray()
         self.battery_widget = Battery()
 
@@ -156,8 +156,6 @@ class SystemInfoTray:
 
         button_content.append(self.wifi)
         button_content.append(self.bluetooth)
-        if localsend_widget is not None:
-            button_content.append(localsend_widget)
         button_content.append(self.audio_container)
         button_content.append(self.battery_widget.widget())
 

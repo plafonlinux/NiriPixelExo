@@ -10,7 +10,6 @@ from .widgets import (
     Clock,
     KeyboardLayout,
     LAVDToggle,
-    LocalSendLauncher,
     Launcher,
     Media,
     PowerProfileIndicator,
@@ -42,10 +41,7 @@ class Bar:
         self.vitals = Vitals()
         self.power_profile_indicator = PowerProfileIndicator()
         self.lavd_toggle = LAVDToggle()
-        self.localsend_launcher = LocalSendLauncher()
-        self.systeminfotray = SystemInfoTray(
-            localsend_widget=self.localsend_launcher.widget()
-        )
+        self.systeminfotray = SystemInfoTray()
         self.keyboard_layout = KeyboardLayout()
         set_indicator(self.recording_indicator)
 
@@ -68,7 +64,6 @@ class Bar:
         self.vitals_widget = self.vitals.widget()
         self.power_profile_widget = self.power_profile_indicator.widget()
         self.lavd_widget = self.lavd_toggle.widget()
-        self.localsend_widget = self.localsend_launcher.widget()
         self.keyboard_layout_widget = self.keyboard_layout.widget()
 
     def build(self):
@@ -301,8 +296,6 @@ class Bar:
 
             location(a, b).append(widget["widget"])
             widget["widget"].set_visible(getattr(visibility_setting, widget["name"]))
-
-        self.localsend_widget.set_visible(visibility_setting.localsend)
 
         # QuickLaunch is a standalone bubble in center, same bar as tasks
         tasks_bar = getattr(bar_id_setting, "tasks")
