@@ -175,29 +175,120 @@ class InstallWorker:
             GLib.idle_add(self._done, False, str(exc))
 
     def _s_system_pkgs(self):
-        ALWAYS = [
-            "swww", "swayosd", "swayidle", "fuzzel",
-            "fastfetch", "playerctl", "xwayland-satellite",
+        # (binary, label, apt_candidates, cargo_crate, gh_repo, optional)
+        tools = [
+            ("swww",               "swww",               ["swww"],                      "swww",               None,                      False),
+            ("swayosd-server",     "swayosd",             ["swayosd"],                   "swayosd",            None,                      True),
+            ("swayidle",           "swayidle",            ["swayidle"],                  None,                 None,                      False),
+            ("fuzzel",             "fuzzel",              ["fuzzel"],                    None,                 None,                      False),
+            ("fastfetch",          "fastfetch",           ["fastfetch"],                 None,                 "fastfetch-cli/fastfetch",  False),
+            ("playerctl",          "playerctl",           ["playerctl"],                 None,                 None,                      False),
+            ("xwayland-satellite", "xwayland-satellite",  ["xwayland-satellite"],        "xwayland-satellite", None,                      False),
+            ("hyprlock",           "hyprlock",            ["hyprlock", "hyprland-lock"], None,                 None,                      False),
+            ("kitty",              "kitty",               ["kitty"],                     None,                 None,                      False),
         ]
-        pkgs = [p for p in ALWAYS
-                if not shutil.which(p, path=self._env_path()) and self._in_apt(p)]
+        if self.install_starship:
+            tools.append(
+                ("starship", "starship", ["starship"], "starship", None, False)
+            )
 
-        if not shutil.which("hyprlock", path=self._env_path()):
-            for candidate in ("hyprlock", "hyprland-lock", "hypr-lock"):
-                if self._in_apt(candidate):
-                    pkgs.append(candidate)
+        for binary, label, apt_names, cargo_crate, gh_repo, optional in tools:
+            if shutil.which(binary, path=self._env_path()):
+                self._emit(f"  ✓ {label} уже установлен")
+                continue
+
+            # 1. apt
+            for pkg in apt_names:
+                if self._in_apt(pkg):
+                    self._emit(f"  apt: {label}")
+                    self._apt(pkg)
                     break
 
-        if self.install_starship and not shutil.which("starship", path=self._env_path()):
-            if self._in_apt("starship"):
-                pkgs.append("starship")
-            else:
-                self._emit("  starship: не найден в репозитории, установите вручную")
+            if shutil.which(binary, path=self._env_path()):
+                continue
 
-        if pkgs:
-            self._apt(*pkgs)
-        else:
-            self._emit("  Все пакеты уже установлены")
+            # 2. GitHub binary
+            if gh_repo and self._download_tool_binary(gh_repo, binary, label):
+                continue
+
+            # 3. cargo
+            if cargo_crate:
+                self._emit(f"  cargo install {cargo_crate}…")
+                try:
+                    if not shutil.which("cargo"):
+                        self._apt("rust")
+                    self._sh(["cargo", "install", cargo_crate])
+                    continue
+                except Exception as e:
+                    self._emit(f"  cargo не удался: {e}")
+
+            if optional:
+                self._emit(f"  ⚠ {label}: пропущен, установите вручную")
+            else:
+                self._emit(f"  ✗ {label}: не установлен, добавьте вручную")
+
+    def _download_tool_binary(self, repo: str, binary: str, label: str) -> bool:
+        """Скачать бинарник из GitHub Releases. Возвращает True при успехе."""
+        try:
+            req = urllib.request.Request(
+                f"https://api.github.com/repos/{repo}/releases/latest",
+                headers={"User-Agent": "NiriPixelExo-installer/1.0"},
+            )
+            with urllib.request.urlopen(req, timeout=20) as r:
+                assets = json.loads(r.read()).get("assets", [])
+        except Exception as e:
+            self._emit(f"  GitHub API недоступен: {e}")
+            return False
+
+        if not assets:
+            return False
+
+        PREFER = [
+            "musl-amd64", "musl_amd64", "x86_64-unknown-linux-musl",
+            "linux-amd64", "linux_amd64", "linux-x86_64", "x86_64-linux",
+        ]
+        EXTS = (".tar.gz", ".tgz", ".zip")
+
+        url = None
+        for pattern in PREFER:
+            url = next(
+                (a["browser_download_url"] for a in assets
+                 if pattern in a["name"].lower()
+                 and any(a["name"].lower().endswith(e) for e in EXTS)),
+                None,
+            )
+            if url:
+                break
+
+        if not url:
+            return False
+
+        self._emit(f"  GitHub: {label} — {url.rsplit('/', 1)[-1]}")
+        LOCAL_BIN.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                tmp = Path(tmp)
+                arc = tmp / "download"
+                urllib.request.urlretrieve(url, arc)
+                name_lower = url.lower()
+
+                if name_lower.endswith((".tar.gz", ".tgz")):
+                    subprocess.run(["tar", "-xzf", str(arc), "-C", str(tmp)], check=True)
+                elif name_lower.endswith(".zip"):
+                    subprocess.run(["unzip", "-q", str(arc), "-d", str(tmp)], check=True)
+                else:
+                    self._install_bin(arc, binary)
+                    return True
+
+                for f in sorted(tmp.rglob(binary)):
+                    if f.is_file() and f.name == binary:
+                        self._install_bin(f, binary)
+                        return True
+        except Exception as e:
+            self._emit(f"  Загрузка не удалась: {e}")
+
+        return False
 
     def _s_extra_configs(self):
         def copy_if_missing(src: Path, dst: Path):
