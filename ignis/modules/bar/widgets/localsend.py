@@ -12,7 +12,7 @@ def _render_pixbuf(dark: bool) -> GdkPixbuf.Pixbuf:
     color = "#ffffff" if dark else "#1a1a1a"
     svg = _SVG_TEMPLATE.replace("currentColor", color)
     loader = GdkPixbuf.PixbufLoader()
-    loader.set_size(16, 16)
+    loader.set_size(20, 20)
     loader.write(svg.encode())
     loader.close()
     return loader.get_pixbuf()
@@ -21,7 +21,6 @@ def _render_pixbuf(dark: bool) -> GdkPixbuf.Pixbuf:
 class LocalSendLauncher:
     def __init__(self):
         self._image = Gtk.Image()
-        self._image.add_css_class("localsend-icon")
         self._update_icon()
 
         user_settings.appearance.wallcolors.connect(
@@ -30,9 +29,9 @@ class LocalSendLauncher:
         )
 
         self._button = widgets.Button(
-            css_classes=["localsend-btn"],
+            css_classes=["m3-button", "tonal", "xs", "round", "icon-only"],
             tooltip_text="LocalSend",
-            child=self._image,
+            child=widgets.Box(child=[self._image], halign="center", valign="center"),
             on_click=lambda _: subprocess.Popen(
                 ["flatpak", "run", "org.localsend.localsend_app"],
                 start_new_session=True,
