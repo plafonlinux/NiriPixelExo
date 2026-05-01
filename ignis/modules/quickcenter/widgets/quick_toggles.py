@@ -61,7 +61,7 @@ def _open_bt_settings():
 
 
 class LauncherTile(widgets.Button):
-    def __init__(self, icon: str, label: str, subtitle: str, command: list):
+    def __init__(self, icon: str, label: str, subtitle: str, command: list, env: dict | None = None):
         super().__init__(
             css_classes=["quick-tile", "button"],
             hexpand=True,
@@ -80,7 +80,7 @@ class LauncherTile(widgets.Button):
                     ),
                 ],
             ),
-            on_click=lambda _: subprocess.Popen(command, start_new_session=True),
+            on_click=lambda _: subprocess.Popen(command, start_new_session=True, env=env),
         )
 
 
@@ -225,6 +225,7 @@ class QuickToggles(widgets.Box):
             label="Настройки GNOME",
             subtitle="Системные",
             command=["gnome-control-center"],
+            env={**os.environ, "XDG_CURRENT_DESKTOP": "GNOME"},
         )
 
         thunderbird_tile = LauncherTile(
