@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Установить Эхо
+GenericName=Установщик панели Эхо
+Comment=Niri PixelExo — установка на ALT Linux
+Exec=bash -c 'python3 "$(dirname "%k")/install.py"'
+Type=Application
+Terminal=false
+Icon=system-software-install
+Categories=System;
+StartupNotify=true

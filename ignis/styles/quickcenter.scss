@@ -1,0 +1,322 @@
+@use "../colors";
+
+.quick-center {
+    border-radius: 20px;
+    background-color: colors.$surface_dim;
+    color: colors.$on_background;
+    margin: 5px;
+    border: 1px solid rgba(colors.$outline_variant, 0.5);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+
+    .notification-center {
+        padding: 10px;
+        border-radius: 30px 30px 20px 20px;
+        scrolledwindow viewport {
+            border-radius: 20px;
+        }
+        .notification-center-info-icon {
+            font-family: "Material Symbols Outlined", "Material Icons Outlined";
+            font-size: 24pt;
+            color: colors.$on_surface_variant;
+            margin-bottom: 5px;
+        }
+        .notification-center-info-label {
+            font-weight: 500;
+        }
+        .notification-center-content {
+            revealer {
+                .notification {
+                    border-radius: 8px;
+                }
+                &:last-child {
+                    border-bottom-left-radius: 20px;
+                    border-bottom-right-radius: 20px;
+                }
+            }
+        }
+    }
+
+    .bottom-controls {
+        padding: 10px;
+
+        .logitech-bat-icon {
+            font-size: 14px;
+            color: colors.$on_surface_variant;
+        }
+
+        .logitech-bat-percent {
+            font-size: 8pt;
+            font-weight: 600;
+            color: colors.$on_surface_variant;
+        }
+    }
+
+    .quick-tiles-row {
+        margin: 0px 10px;
+        margin-bottom: 4px;
+
+        .quick-tile {
+            background-color: colors.$surface_container;
+            border-radius: 16px;
+            transition: 150ms;
+
+            .qt-icon {
+                font-size: 20px;
+                color: colors.$on_surface_variant;
+            }
+
+            .qt-title {
+                font-size: 9pt;
+                font-weight: 600;
+                color: colors.$on_surface;
+            }
+
+            .qt-subtitle {
+                font-size: 8pt;
+                color: colors.$on_surface_variant;
+            }
+
+            /* BT tile — обычная кнопка */
+            &.button {
+                padding: 10px 14px;
+
+                &:hover {
+                    background-color: colors.$surface_container_high;
+                }
+            }
+
+            /* WiFi tile — box с двумя кнопками внутри */
+            .qt-main {
+                background: transparent;
+                border-radius: 16px 0 0 16px;
+                padding: 10px 8px 10px 14px;
+
+                &:hover {
+                    background-color: rgba(colors.$on_surface, 0.06);
+                }
+            }
+
+            .qt-arrow {
+                background: transparent;
+                border-radius: 0 16px 16px 0;
+                padding: 0px 10px;
+                border-left: 1px solid rgba(colors.$outline_variant, 0.5);
+
+                &:hover {
+                    background-color: rgba(colors.$on_surface, 0.06);
+                }
+
+                .qt-arrow-icon {
+                    font-size: 16px;
+                    color: colors.$on_surface_variant;
+                }
+            }
+
+            &.active {
+                background-color: colors.$primary_container;
+
+                .qt-icon, .qt-title, .qt-subtitle {
+                    color: colors.$on_primary_container;
+                }
+
+                &.button:hover {
+                    background-color: mix(
+                        colors.$primary_container,
+                        colors.$on_primary_container,
+                        $weight: 90%,
+                        $method: hsl
+                    );
+                }
+
+                .qt-main:hover {
+                    background-color: rgba(colors.$on_primary_container, 0.08);
+                }
+
+                .qt-arrow {
+                    border-left-color: rgba(colors.$on_primary_container, 0.3);
+
+                    &:hover {
+                        background-color: rgba(colors.$on_primary_container, 0.08);
+                    }
+
+                    .qt-arrow-icon {
+                        color: colors.$on_primary_container;
+                    }
+                }
+            }
+        }
+    }
+
+    .quick-toggles-container {
+        margin: 10px;
+        border-radius: 50rem;
+        .quick-toggle.m3-button {
+            padding: 0px 10px;
+            background-color: colors.$surface_container;
+            color: colors.$on_background;
+            border-radius: 8px;
+
+            .quick-toggle-icon {
+                font-family:
+                    "Material Symbols Outlined", "Material Icons Outlined";
+                font-size: 16pt;
+            }
+
+            &:hover {
+                background-color: colors.$surface_container_high;
+            }
+
+            &:first-child {
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+            }
+
+            &:last-child {
+                border-top-right-radius: 20px;
+                border-bottom-right-radius: 20px;
+            }
+
+            &.active {
+                border-radius: 50rem;
+                background-color: colors.$primary;
+                .m3-button-icon {
+                    color: colors.$on_primary;
+                }
+
+                &:hover {
+                    background-color: colors.$primary;
+                }
+            }
+        }
+    }
+
+    .mp-container {
+        margin: 0px 10px;
+        margin-bottom: 4px;
+    }
+
+    .mp-card {
+        background-color: colors.$surface_container;
+        border-radius: 20px;
+        padding: 12px 14px;
+        .mp-art-box {
+            border-radius: 12px;
+            min-width: 72px;
+            min-height: 72px;
+            background-color: colors.$surface_container_high;
+
+            image {
+                border-radius: 12px;
+            }
+        }
+
+        .mp-title {
+            font-weight: 700;
+            font-size: 10pt;
+            color: colors.$on_surface;
+        }
+
+        .mp-artist {
+            font-size: 8.5pt;
+            color: colors.$on_surface_variant;
+        }
+
+        .mp-progress-row {
+            margin-top: 2px;
+        }
+
+        .mp-time {
+            font-size: 7.5pt;
+            color: colors.$on_surface_variant;
+            min-width: 28px;
+        }
+
+        .mp-progress {
+            trough {
+                min-height: 3px;
+                border-radius: 2px;
+                background-color: rgba(colors.$on_surface, 0.15);
+            }
+            highlight {
+                min-height: 3px;
+                border-radius: 2px;
+                background-color: colors.$primary;
+            }
+            slider {
+                min-width: 10px;
+                min-height: 10px;
+                border-radius: 50%;
+                background-color: colors.$primary;
+                margin: -4px 0;
+                transition: 100ms;
+            }
+        }
+
+        .mp-controls {
+            margin-top: 2px;
+        }
+
+        .mp-btn {
+            background: transparent;
+            border-radius: 50%;
+            padding: 6px;
+            min-width: 32px;
+            min-height: 32px;
+
+            .m3-icon {
+                font-size: 20px;
+                color: colors.$on_surface;
+            }
+
+            &:hover {
+                background-color: rgba(colors.$on_surface, 0.08);
+            }
+
+            &:active {
+                background-color: rgba(colors.$on_surface, 0.14);
+            }
+
+            &:disabled .m3-icon {
+                color: rgba(colors.$on_surface, 0.3);
+            }
+        }
+
+        .mp-btn-play {
+            background-color: colors.$primary_container;
+            padding: 8px;
+            min-width: 40px;
+            min-height: 40px;
+
+            .m3-icon {
+                font-size: 22px;
+                color: colors.$on_primary_container;
+            }
+
+            &:hover {
+                background-color: mix(
+                    colors.$primary_container,
+                    colors.$on_primary_container,
+                    $weight: 90%,
+                    $method: hsl
+                );
+            }
+        }
+    }
+
+    .quick-sliders-container {
+        margin: 10px;
+        margin-top: 0px;
+
+        .m3-slider {
+            border-radius: 8px;
+        }
+        .m3-slider:first-child {
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .m3-slider:last-child {
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+    }
+}
