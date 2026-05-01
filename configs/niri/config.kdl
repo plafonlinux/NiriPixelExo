@@ -1,0 +1,374 @@
+// Конфигурация niri — NiriPixelExo
+// Полная документация: https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
+
+// ─────────────────────────────────────────────
+// Автозапуск
+// ─────────────────────────────────────────────
+
+// ignis добавляется установщиком автоматически
+spawn-at-startup "swww-daemon"
+spawn-at-startup "swww" "restore"
+spawn-at-startup "swayosd-server"
+spawn-at-startup "xwayland-satellite"
+spawn-at-startup "swayidle" "-w" \
+    "timeout" "300" "hyprlock" \
+    "timeout" "600" "niri msg action power-off-monitors" \
+    "resume" "niri msg action power-on-monitors" \
+    "before-sleep" "hyprlock"
+spawn-at-startup "/usr/libexec/polkit-1/polkit-gnome-authentication-agent-1"
+
+environment {
+    DISPLAY ":0"
+    LANG "ru_RU.UTF-8"
+    LC_TIME "ru_RU.UTF-8"
+}
+
+// ─────────────────────────────────────────────
+// Overview
+// ─────────────────────────────────────────────
+
+overview {
+    backdrop-color "#000000"
+}
+
+// ─────────────────────────────────────────────
+// Input
+// ─────────────────────────────────────────────
+
+input {
+    focus-follows-mouse max-scroll-amount="0%"
+
+    keyboard {
+        xkb {
+            layout "us,ru"
+            options "grp:caps_toggle"
+        }
+        numlock
+    }
+
+    touchpad {
+        tap
+        drag-lock
+        natural-scroll
+        accel-speed 0.0
+        accel-profile "adaptive"
+        scroll-factor 0.4
+        scroll-method "two-finger"
+        click-method "clickfinger"
+        tap-button-map "left-right-middle"
+    }
+
+    mouse {
+        // natural-scroll
+        // accel-speed 0.2
+        // accel-profile "flat"
+    }
+}
+
+// ─────────────────────────────────────────────
+// Output (мониторы)
+// Имена мониторов: niri msg outputs
+// ─────────────────────────────────────────────
+
+// Раскомментируй и настрой под своё железо:
+// output "DP-1" {
+//     mode "1920x1080@60.000"
+//     scale 1.0
+//     position x=0 y=0
+// }
+// output "eDP-1" {
+//     mode "2560x1440@165.000"
+//     transform "normal"
+//     position x=0 y=0
+//     scale 1.25
+// }
+
+// ─────────────────────────────────────────────
+// Курсор
+// ─────────────────────────────────────────────
+
+cursor {
+    xcursor-theme "Adwaita"
+    xcursor-size 24
+}
+
+// ─────────────────────────────────────────────
+// Layout
+// ─────────────────────────────────────────────
+
+layout {
+    gaps 6
+
+    background-color "transparent"
+
+    center-focused-column "on-overflow"
+
+    preset-column-widths {
+        proportion 0.25
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        on
+        width 2
+        active-color "#f69a0a"
+        inactive-color "#000000"
+    }
+
+    border {
+        off
+        width 3
+        active-color "#7aa2f7ff"
+        inactive-color "#505050"
+        urgent-color "#9b0000"
+    }
+
+    shadow {
+        // on
+        softness 30
+        spread 5
+        offset x=0 y=5
+        color "#0007"
+    }
+
+    struts {
+        // left 64
+        // right 64
+        // top 64
+        // bottom 64
+    }
+}
+
+// ─────────────────────────────────────────────
+// Правила окон
+// ─────────────────────────────────────────────
+
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    open-floating true
+}
+
+window-rule {
+    match app-id="org.gnome.Nautilus"
+    default-column-width { proportion 0.75; }
+}
+
+window-rule {
+    match app-id="kitty"
+    match app-id="org.gnome.Nautilus"
+    max-height 700
+}
+
+window-rule {
+    match app-id="google-chrome"
+    match app-id="com.obsproject.Studio"
+    match app-id="com.discordapp.Discord"
+    match app-id="org.gnome.Boxes"
+    match app-id="org.gnome.DiskUtility"
+    match app-id="code"
+    open-maximized true
+}
+
+// ─────────────────────────────────────────────
+// Горячие клавиши
+// ─────────────────────────────────────────────
+
+binds {
+
+    // ── Системное ─────────────────────────────
+    Mod+Shift+Slash         { show-hotkey-overlay; }
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Shift+E             { quit; }
+    Ctrl+Alt+Delete         { quit; }
+    Mod+Shift+P             { power-off-monitors; }
+    Mod+Shift+Ctrl+T        { toggle-debug-tint; }
+
+    // ── Запуск приложений ──────────────────────
+    Mod+Return hotkey-overlay-title="Терминал: kitty"            { spawn "kitty"; }
+    Mod+Space  repeat=false                                      { spawn "kitten" "quick-access-terminal"; }
+    Mod+D      hotkey-overlay-title="Запуск приложения: fuzzel"  { spawn "fuzzel"; }
+    Mod+E      hotkey-overlay-title="Файловый менеджер"          { spawn "nautilus"; }
+    Mod+W      hotkey-overlay-title="Браузер"                    { spawn "flatpak" "run" "com.google.Chrome"; }
+    Mod+Z      hotkey-overlay-title="Telegram"                   { spawn "telegram-desktop"; }
+    Super+L    hotkey-overlay-title="Заблокировать экран"        { spawn "hyprlock"; }
+
+    // ── Окна ──────────────────────────────────
+    Mod+Q               { close-window; }
+    Mod+MouseMiddle     { close-window; }
+    Mod+A repeat=false  { toggle-overview; }
+    Mod+V               { toggle-window-floating; }
+    Mod+Shift+V         { switch-focus-between-floating-and-tiling; }
+
+    // ── Фокус ─────────────────────────────────
+    Mod+Left  { focus-column-left; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+
+    // ── Перемещение окон ──────────────────────
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+L     { move-column-right; }
+
+    // ── Первый / последний столбец ────────────
+    Mod+Home      { focus-column-first; }
+    Mod+End       { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    // ── Фокус монитора ────────────────────────
+    Mod+Shift+Left  { focus-monitor-left; }
+    Mod+Shift+Down  { focus-monitor-down; }
+    Mod+Shift+Up    { focus-monitor-up; }
+    Mod+Shift+Right { focus-monitor-right; }
+    Mod+Shift+H     { focus-monitor-left; }
+    Mod+Shift+J     { focus-monitor-down; }
+    Mod+Shift+K     { focus-monitor-up; }
+    Mod+Shift+L     { focus-monitor-right; }
+
+    // ── Перемещение столбца на монитор ────────
+    Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+Down  { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+Up    { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+    Mod+Shift+Ctrl+H     { move-column-to-monitor-left; }
+    Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
+    Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
+    Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+
+    // ── Рабочие пространства ──────────────────
+    Mod+Page_Down       { focus-workspace-down; }
+    Mod+Page_Up         { focus-workspace-up; }
+    Mod+U               { focus-workspace-down; }
+    Mod+I               { focus-workspace-up; }
+    Mod+Ctrl+Page_Down  { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up    { move-column-to-workspace-up; }
+    Mod+Ctrl+U          { move-column-to-workspace-down; }
+    Mod+Ctrl+I          { move-column-to-workspace-up; }
+    Mod+Shift+Page_Down { move-workspace-down; }
+    Mod+Shift+Page_Up   { move-workspace-up; }
+    Mod+Shift+U         { move-workspace-down; }
+    Mod+Shift+I         { move-workspace-up; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    // ── Размер и расположение столбцов ────────
+    Mod+R       { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R  { reset-window-height; }
+    Mod+F       { maximize-column; }
+    Mod+Shift+F { fullscreen-window; }
+    Mod+Ctrl+F  { expand-column-to-available-width; }
+    Mod+C       { center-column; }
+    Mod+Ctrl+C  { center-visible-columns; }
+
+    Mod+Minus       { set-column-width "-10%"; }
+    Mod+Equal       { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    Mod+Shift+C {
+        spawn "sh" "-c" "niri msg action set-column-width -- '33%' && niri msg action center-column && niri msg action toggle-window-floating"
+    }
+
+    // ── Столбцы: объединение и разделение ─────
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+Comma  { consume-window-into-column; }
+    Mod+Period { expel-window-from-column; }
+
+    // ── Прокрутка колесом мыши ────────────────
+    Mod+WheelScrollDown       cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp         cooldown-ms=150 { focus-workspace-up; }
+    Mod+Ctrl+WheelScrollDown  cooldown-ms=150 { move-column-to-workspace-down; }
+    Mod+Ctrl+WheelScrollUp    cooldown-ms=150 { move-column-to-workspace-up; }
+    Mod+WheelScrollRight      cooldown-ms=100 { focus-column-right; }
+    Mod+WheelScrollLeft       cooldown-ms=100 { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight cooldown-ms=150 { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft  cooldown-ms=150 { move-column-left; }
+    Mod+Shift+WheelScrollDown      { focus-column-right; }
+    Mod+Shift+WheelScrollUp        { focus-column-left; }
+    Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
+    Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
+    // ── Звук ──────────────────────────────────
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "+6"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "-6"; }
+    XF86AudioMute        allow-when-locked=true { spawn "swayosd-client" "--output-volume=mute-toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "swayosd-client" "--input-volume=mute-toggle"; }
+
+    // ── Медиаклавиши ──────────────────────────
+    XF86AudioPlay  allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    XF86AudioStop  allow-when-locked=true { spawn-sh "playerctl stop"; }
+    XF86AudioPrev  allow-when-locked=true { spawn-sh "playerctl previous"; }
+    XF86AudioNext  allow-when-locked=true { spawn-sh "playerctl next"; }
+
+    XF86Launch1       allow-when-locked=true { spawn-sh "playerctl play-pause"; }
+    Ctrl+XF86Launch1  allow-when-locked=true { spawn-sh "playerctl next"; }
+    Shift+XF86Launch1 allow-when-locked=true { spawn-sh "playerctl previous"; }
+
+    // ── Яркость ───────────────────────────────
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "swayosd-client" "--brightness=raise"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "swayosd-client" "--brightness=lower"; }
+
+    // ── Скриншоты ─────────────────────────────
+    Print      { screenshot; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print  { screenshot-window; }
+}
+
+// ─────────────────────────────────────────────
+// Анимации
+// ─────────────────────────────────────────────
+
+animations {
+    // off
+    // slowdown 3.0
+}
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+switch-events {
+    lid-close { spawn "hyprlock"; }
+    lid-open  { spawn "niri" "msg" "action" "power-on-monitors"; }
+}
+
+prefer-no-csd

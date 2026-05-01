@@ -1,0 +1,54 @@
+format = """
+[](#f69a0a)\
+[ ](bg:#f69a0a fg:#282828)\
+[](fg:#f69a0a bg:#444444)\
+$directory\
+[](fg:#444444 bg:#333333)\
+$git_branch\
+$git_status\
+[](fg:#333333 bg:#282828)\
+$nodejs$rust$python\
+$character"""
+
+[directory]
+style = "bg:#444444 fg:#ffffff"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+symbol = ""
+style = "bg:#333333 fg:#f69a0a"
+format = "[[ $symbol $branch ]($style)]($style)"
+
+[git_status]
+style = "bg:#333333 fg:#fb4934"
+format = "[[($all_status$ahead_behind )]($style)]($style)"
+
+[nodejs]
+symbol = ""
+style = "fg:#9ece6a"
+format = "[$symbol]($style) "
+
+[rust]
+symbol = ""
+style = "fg:#fe8019"
+format = "[$symbol]($style) "
+
+[python]
+symbol = ""
+style = "fg:#83a598"
+format = "[$symbol]($style) "
+
+[character]
+success_symbol = "[ ❯](bold #f69a0a) "
+error_symbol = "[ ❯](bold #fb4934) "
+
+[line_break]
+disabled = true

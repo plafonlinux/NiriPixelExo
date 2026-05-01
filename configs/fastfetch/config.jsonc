@@ -1,0 +1,79 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/jsonc.schema.json",
+  "logo": {
+    "source": "alt",
+    "padding": {
+      "top": 2,
+      "left": 2
+    }
+  },
+  "display": {
+    "separator": " ➜  "
+  },
+  "modules": [
+    "title",
+    "separator",
+    {
+      "type": "os",
+      "key": "󰣻 OS",
+      "keyColor": "31"
+    },
+    {
+      "type": "kernel",
+      "key": "󰒋 Ядро",
+      "keyColor": "32"
+    },
+    {
+      "type": "uptime",
+      "key": "󰔚 Аптайм",
+      "keyColor": "33"
+    },
+    {
+      "type": "packages",
+      "key": "󰏖 Пакеты",
+      "keyColor": "34"
+    },
+    {
+      "type": "shell",
+      "key": "󱆃 Шелл",
+      "keyColor": "35"
+    },
+    {
+      "type": "display",
+      "key": "󰍹 Экран",
+      "keyColor": "36"
+    },
+    {
+      "type": "wm",
+      "key": "󱂬 WM",
+      "keyColor": "31"
+    },
+    {
+      "type": "terminal",
+      "key": "󰆍 Терминал",
+      "keyColor": "32"
+    },
+    {
+      "type": "cpu",
+      "key": "󰻠 CPU",
+      "keyColor": "33"
+    },
+    {
+      "type": "gpu",
+      "key": "󰢮 GPU",
+      "keyColor": "34"
+    },
+    {
+      "type": "memory",
+      "key": "󰍛 Память",
+      "keyColor": "35"
+    },
+    {
+      "type": "disk",
+      "key": "󰋊 Диск",
+      "keyColor": "36"
+    },
+    "break",
+    "colors"
+  ]
+}

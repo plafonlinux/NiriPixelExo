@@ -22,8 +22,10 @@ except Exception as exc:
 INSTALLER_DIR = Path(__file__).parent.resolve()
 SOURCE_DIR    = INSTALLER_DIR / "ignis"
 DEFAULTS_DIR  = INSTALLER_DIR / "exodefaults"
+CONFIGS_DIR   = INSTALLER_DIR / "configs"
 CONFIG_DEST   = Path.home() / ".config" / "ignis"
 NIRI_CFG      = Path.home() / ".config" / "niri" / "config.kdl"
+MATUGEN_DEST  = Path.home() / ".config" / "matugen"
 LOCAL_BIN     = Path.home() / ".local" / "bin"
 
 # ── CSS ────────────────────────────────────────────────────────────────────────
@@ -97,11 +99,14 @@ def detect_compositor() -> str:
 # ── Рабочий поток установки ────────────────────────────────────────────────────
 
 class InstallWorker:
-    def __init__(self, branch: str, wallpaper_dir: str | None, on_log, on_done):
-        self.branch        = branch
-        self.wallpaper_dir = wallpaper_dir
-        self._log          = on_log   # callable(str) — через GLib.idle_add
-        self._done         = on_done  # callable(ok: bool, msg: str)
+    def __init__(self, branch: str, wallpaper_dir: str | None, on_log, on_done,
+                 install_kitty: bool = False, install_starship: bool = False):
+        self.branch           = branch
+        self.wallpaper_dir    = wallpaper_dir
+        self.install_kitty    = install_kitty
+        self.install_starship = install_starship
+        self._log             = on_log
+        self._done            = on_done
 
     def start(self):
         threading.Thread(target=self._run, daemon=True).start()
@@ -155,17 +160,96 @@ class InstallWorker:
 
     def _run(self):
         try:
-            self._step("Обновление пакетной базы",   self._s_apt_update)
-            self._step("Проверка pip3",              self._s_pip)
-            self._step("Установка ignis",            self._s_ignis)
-            self._step("Установка matugen",          self._s_matugen)
-            self._step("Копирование конфигурации",   self._s_copy_config)
-            self._step("Настройка обоев",            self._s_wallpaper)
-            self._step("Генерация цветовой схемы",   self._s_colors)
-            self._step("Автозапуск в Niri",          self._s_autostart)
+            self._step("Обновление пакетной базы",    self._s_apt_update)
+            self._step("Проверка pip3",               self._s_pip)
+            self._step("Системные пакеты",            self._s_system_pkgs)
+            self._step("Установка ignis",             self._s_ignis)
+            self._step("Установка matugen",           self._s_matugen)
+            self._step("Копирование конфигурации",    self._s_copy_config)
+            self._step("Дополнительные конфиги",      self._s_extra_configs)
+            self._step("Настройка обоев",             self._s_wallpaper)
+            self._step("Генерация цветовой схемы",    self._s_colors)
+            self._step("Автозапуск в Niri",           self._s_autostart)
             GLib.idle_add(self._done, True, "")
         except Exception as exc:
             GLib.idle_add(self._done, False, str(exc))
+
+    def _s_system_pkgs(self):
+        ALWAYS = [
+            "swww", "swayosd", "swayidle", "fuzzel",
+            "fastfetch", "playerctl", "xwayland-satellite",
+        ]
+        pkgs = [p for p in ALWAYS
+                if not shutil.which(p, path=self._env_path()) and self._in_apt(p)]
+
+        if not shutil.which("hyprlock", path=self._env_path()):
+            for candidate in ("hyprlock", "hyprland-lock", "hypr-lock"):
+                if self._in_apt(candidate):
+                    pkgs.append(candidate)
+                    break
+
+        if self.install_starship and not shutil.which("starship", path=self._env_path()):
+            if self._in_apt("starship"):
+                pkgs.append("starship")
+            else:
+                self._emit("  starship: не найден в репозитории, установите вручную")
+
+        if pkgs:
+            self._apt(*pkgs)
+        else:
+            self._emit("  Все пакеты уже установлены")
+
+    def _s_extra_configs(self):
+        def copy_if_missing(src: Path, dst: Path):
+            if src.exists() and not dst.exists():
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src, dst)
+                self._emit(f"  → {dst}")
+
+        def copy_with_backup(src: Path, dst: Path):
+            if not src.exists():
+                return
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if dst.exists():
+                bak = dst.with_suffix(dst.suffix + ".bak")
+                shutil.copy2(dst, bak)
+                self._emit(f"  Резервная копия: {bak}")
+            shutil.copy2(src, dst)
+            self._emit(f"  → {dst}")
+
+        # Niri
+        copy_if_missing(CONFIGS_DIR / "niri" / "config.kdl", NIRI_CFG)
+
+        # Matugen config
+        copy_if_missing(CONFIGS_DIR / "matugen" / "config.toml", MATUGEN_DEST / "config.toml")
+
+        # Matugen templates (из ignis/matugen/templates/)
+        tpl_src = SOURCE_DIR / "matugen" / "templates"
+        tpl_dst = MATUGEN_DEST / "templates"
+        if tpl_src.exists():
+            tpl_dst.mkdir(parents=True, exist_ok=True)
+            for f in tpl_src.iterdir():
+                if f.is_file():
+                    copy_if_missing(f, tpl_dst / f.name)
+
+        # Fuzzel
+        copy_if_missing(CONFIGS_DIR / "fuzzel" / "fuzzel.ini",
+                        Path.home() / ".config" / "fuzzel" / "fuzzel.ini")
+
+        # Fastfetch
+        copy_if_missing(CONFIGS_DIR / "fastfetch" / "config.jsonc",
+                        Path.home() / ".config" / "fastfetch" / "config.jsonc")
+
+        # Kitty (по выбору пользователя)
+        if self.install_kitty:
+            copy_with_backup(CONFIGS_DIR / "kitty" / "kitty.conf",
+                             Path.home() / ".config" / "kitty" / "kitty.conf")
+
+        # Starship (по выбору пользователя)
+        if self.install_starship:
+            star_dst = Path.home() / ".config" / "starship.toml"
+            copy_if_missing(CONFIGS_DIR / "starship" / "starship.toml", star_dst)
+            self._emit("  Starship: добавь в ~/.bashrc: eval \"$(starship init bash)\"")
 
     def _s_apt_update(self):
         self._sh(self._priv() + ["apt-get", "update", "-qq"])
@@ -303,17 +387,13 @@ class InstallWorker:
     def _s_autostart(self):
         ignis = (shutil.which("ignis", path=self._env_path())
                  or str(LOCAL_BIN / "ignis"))
-        cfg   = CONFIG_DEST / "config.py"
-        line  = f'spawn-at-startup "{ignis}" "run" "{cfg}"'
+        cfg  = CONFIG_DEST / "config.py"
+        line = f'spawn-at-startup "{ignis}" "run" "{cfg}"'
 
         if not NIRI_CFG.exists():
-            # Нет конфига — копируем дефолтный
             NIRI_CFG.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(DEFAULTS_DIR / "config.kdl", NIRI_CFG)
-            self._emit(f"  Скопирован дефолтный конфиг niri")
-            with NIRI_CFG.open("a") as f:
-                f.write(f"\n// Эхо — автозапуск\n{line}\n")
-            return
+            self._emit("  Скопирован дефолтный конфиг niri")
 
         content = NIRI_CFG.read_text()
         if "ignis" in content:
@@ -331,10 +411,12 @@ class InstallerWindow(Gtk.ApplicationWindow):
 
     def __init__(self, app: Gtk.Application, branch: str):
         super().__init__(application=app, title="Установка Эхо")
-        self._branch        = branch
-        self._wallpaper_dir = None
-        self._pulse_id      = None
-        self._folder_dlg    = None   # держим FileChooserNative живым
+        self._branch          = branch
+        self._wallpaper_dir   = None
+        self._install_kitty   = True
+        self._install_starship = True
+        self._pulse_id        = None
+        self._folder_dlg      = None
 
         p = Gtk.CssProvider()
         p.load_from_data(CSS)
@@ -352,6 +434,7 @@ class InstallerWindow(Gtk.ApplicationWindow):
 
         self._stack.add_named(self._pg_welcome(),   "welcome")
         self._stack.add_named(self._pg_wallpaper(), "wallpaper")
+        self._stack.add_named(self._pg_extras(),    "extras")
         self._stack.add_named(self._pg_install(),   "install")
         self._stack.add_named(self._pg_done(),      "done")
 
@@ -401,10 +484,12 @@ class InstallerWindow(Gtk.ApplicationWindow):
         box.append(sec)
 
         for name, desc in [
-            ("ignis",             "Wayland-шелл на GTK4 (Python) — pip3 install ignis"),
-            ("matugen",           "Генератор цветовых схем — репозиторий / GitHub / cargo"),
-            ("Конфигурация Эхо", "Копируется в ~/.config/ignis/"),
-            ("Автозапуск",        "spawn-at-startup добавляется в niri config.kdl"),
+            ("ignis",                    "Wayland-шелл на GTK4 (Python) — pip3 install ignis"),
+            ("matugen",                  "Генератор цветовых схем — репозиторий / GitHub / cargo"),
+            ("swww, swayosd, fuzzel…",   "Системные утилиты — обои, OSD, лаунчер, sysinfo"),
+            ("Конфигурация Эхо",         "Копируется в ~/.config/ignis/"),
+            ("Конфиги niri, kitty…",     "Готовая настройка среды (по выбору)"),
+            ("Автозапуск",               "spawn-at-startup добавляется в niri config.kdl"),
         ]:
             row = self._hbox(spacing=10)
             row.set_margin_start(4)
@@ -461,13 +546,80 @@ class InstallerWindow(Gtk.ApplicationWindow):
         skip.add_css_class("btn-secondary")
         go = Gtk.Button(label="Установить →")
         go.add_css_class("btn-primary")
-        skip.connect("clicked", lambda _: self._begin_install())
-        go.connect("clicked",   lambda _: self._begin_install())
+        skip.connect("clicked", lambda _: self._stack.set_visible_child_name("extras"))
+        go.connect("clicked",   lambda _: self._stack.set_visible_child_name("extras"))
         btns.append(skip)
         btns.append(go)
 
         for w in (title, desc, self._folder_lbl, pick, btns):
             box.append(w)
+        return box
+
+    def _pg_extras(self) -> Gtk.Widget:
+        box = self._vbox(spacing=10)
+        box.add_css_class("page")
+        box.set_valign(Gtk.Align.CENTER)
+
+        title = Gtk.Label(label="Дополнительные компоненты")
+        title.add_css_class("done-title")
+        title.set_halign(Gtk.Align.CENTER)
+
+        desc = Gtk.Label(label="Установить готовые конфиги для этих инструментов?")
+        desc.add_css_class("hero-sub")
+        desc.set_halign(Gtk.Align.CENTER)
+
+        box.append(title)
+        box.append(desc)
+        box.append(Gtk.Separator())
+
+        for attr, label, subdesc in [
+            ("_chk_kitty",  "Kitty",    "Тема Catppuccin Mocha, JetBrains Mono, горячие клавиши"),
+            ("_chk_star",   "Starship", "Кастомный промпт терминала (требует eval в .bashrc/.zshrc)"),
+        ]:
+            row = self._hbox(spacing=12)
+            row.set_margin_top(6)
+            row.set_margin_start(8)
+            chk = Gtk.CheckButton()
+            chk.set_active(True)
+            setattr(self, attr, chk)
+            col = self._vbox(spacing=2)
+            n = Gtk.Label(label=label)
+            n.add_css_class("item-name")
+            n.set_halign(Gtk.Align.START)
+            d = Gtk.Label(label=subdesc)
+            d.add_css_class("item-desc")
+            d.set_halign(Gtk.Align.START)
+            col.append(n)
+            col.append(d)
+            row.append(chk)
+            row.append(col)
+            box.append(row)
+
+        box.append(self._spacer())
+
+        btns = self._hbox(spacing=12)
+        btns.set_halign(Gtk.Align.CENTER)
+
+        skip = Gtk.Button(label="Пропустить всё")
+        skip.add_css_class("btn-secondary")
+        go = Gtk.Button(label="Установить →")
+        go.add_css_class("btn-primary")
+
+        def on_go(_):
+            self._install_kitty    = self._chk_kitty.get_active()
+            self._install_starship = self._chk_star.get_active()
+            self._begin_install()
+
+        def on_skip(_):
+            self._install_kitty    = False
+            self._install_starship = False
+            self._begin_install()
+
+        go.connect("clicked", on_go)
+        skip.connect("clicked", on_skip)
+        btns.append(skip)
+        btns.append(go)
+        box.append(btns)
         return box
 
     def _pg_install(self) -> Gtk.Widget:
@@ -569,10 +721,12 @@ class InstallerWindow(Gtk.ApplicationWindow):
         self._pulse_id = GLib.timeout_add(60, _pulse)
 
         InstallWorker(
-            branch        = self._branch,
-            wallpaper_dir = self._wallpaper_dir,
-            on_log        = self._on_log,
-            on_done       = self._on_done,
+            branch           = self._branch,
+            wallpaper_dir    = self._wallpaper_dir,
+            on_log           = self._on_log,
+            on_done          = self._on_done,
+            install_kitty    = self._install_kitty,
+            install_starship = self._install_starship,
         ).start()
 
     def _on_log(self, text: str):
