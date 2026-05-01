@@ -8,7 +8,7 @@
 // ignis добавляется установщиком автоматически
 spawn-at-startup "swww-daemon"
 spawn-at-startup "swww" "restore"
-spawn-at-startup "swayosd-server"
+// OSD встроен в ignis — swayosd не нужен
 spawn-at-startup "xwayland-satellite"
 spawn-at-startup "swayidle" "-w" \
     "timeout" "300" "hyprlock" \
@@ -327,11 +327,11 @@ binds {
     Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
     Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
 
-    // ── Звук ──────────────────────────────────
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "+6"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "-6"; }
-    XF86AudioMute        allow-when-locked=true { spawn "swayosd-client" "--output-volume=mute-toggle"; }
-    XF86AudioMicMute     allow-when-locked=true { spawn "swayosd-client" "--input-volume=mute-toggle"; }
+    // ── Звук (PipeWire / wpctl) ───────────────
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1.0" "@DEFAULT_AUDIO_SINK@" "6%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "6%-"; }
+    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
     // ── Медиаклавиши ──────────────────────────
     XF86AudioPlay  allow-when-locked=true { spawn-sh "playerctl play-pause"; }
@@ -344,8 +344,8 @@ binds {
     Shift+XF86Launch1 allow-when-locked=true { spawn-sh "playerctl previous"; }
 
     // ── Яркость ───────────────────────────────
-    XF86MonBrightnessUp   allow-when-locked=true { spawn "swayosd-client" "--brightness=raise"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "swayosd-client" "--brightness=lower"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "brightnessctl" "set" "5%+"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "set" "5%-"; }
 
     // ── Скриншоты ─────────────────────────────
     Print      { screenshot; }

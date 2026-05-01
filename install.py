@@ -178,7 +178,7 @@ class InstallWorker:
         # (binary, label, apt_candidates, cargo_crate, gh_repo, optional)
         tools = [
             ("swww",               "swww",               ["swww"],                      "swww",               None,                      False),
-            ("swayosd-server",     "swayosd",             ["swayosd"],                   "swayosd",            None,                      True),
+            ("brightnessctl",      "brightnessctl",        ["brightnessctl"],              None,                 None,                      False),
             ("swayidle",           "swayidle",            ["swayidle"],                  None,                 None,                      False),
             ("fuzzel",             "fuzzel",              ["fuzzel"],                    None,                 None,                      False),
             ("fastfetch",          "fastfetch",           ["fastfetch"],                 None,                 "fastfetch-cli/fastfetch",  False),
@@ -577,7 +577,7 @@ class InstallerWindow(Gtk.ApplicationWindow):
         for name, desc in [
             ("ignis",                    "Wayland-шелл на GTK4 (Python) — pip3 install ignis"),
             ("matugen",                  "Генератор цветовых схем — репозиторий / GitHub / cargo"),
-            ("swww, swayosd, fuzzel…",   "Системные утилиты — обои, OSD, лаунчер, sysinfo"),
+            ("swww, fuzzel, brightnessctl…", "Системные утилиты — обои, лаунчер, яркость"),
             ("Конфигурация Эхо",         "Копируется в ~/.config/ignis/"),
             ("Конфиги niri, kitty…",     "Готовая настройка среды (по выбору)"),
             ("Автозапуск",               "spawn-at-startup добавляется в niri config.kdl"),
