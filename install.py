@@ -495,6 +495,21 @@ class InstallWorker:
             f.write(f"\n// Эхо — автозапуск\n{line}\n")
         self._emit("  spawn-at-startup добавлен в config.kdl")
 
+        # LocalSend: тёмная тема для Flutter-приложения
+        if shutil.which("flatpak"):
+            import subprocess as _sp
+            result = _sp.run(
+                ["flatpak", "info", "org.localsend.localsend_app"],
+                capture_output=True
+            )
+            if result.returncode == 0:
+                _sp.run([
+                    "flatpak", "override", "--user",
+                    "--env=GTK_THEME=Adwaita:dark",
+                    "org.localsend.localsend_app",
+                ], capture_output=True)
+                self._emit("  LocalSend: тёмная тема применена")
+
 
 # ── Окно установщика ───────────────────────────────────────────────────────────
 
