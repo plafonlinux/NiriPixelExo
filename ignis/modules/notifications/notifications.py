@@ -199,11 +199,29 @@ class ExoNotification(widgets.Box):
     def _focus_app(self):
         try:
             combined = f"{self._app_name} {self._summary} {self._body}".lower()
-            _SCREENSHOT_KEYWORDS = ("screenshot", "скриншот", "снимок экрана")
+
             if any(kw in combined for kw in _SCREENSHOT_KEYWORDS):
                 WindowManager.get_default().close_window("QuickCenter")
                 subprocess.Popen(
                     ["nautilus", os.path.expanduser("~/Pictures/Screenshots")],
+                    start_new_session=True,
+                )
+                return
+
+            if any(kw in combined for kw in _RECORDING_KEYWORDS):
+                WindowManager.get_default().close_window("QuickCenter")
+                body = self._body or ""
+                path = _RECORDING_DIR
+                for line in [self._summary or "", body, combined]:
+                    for part in line.replace(":", "").split():
+                        part = part.strip("'\",")
+                        if _RECORDING_DIR in part and os.path.exists(part):
+                            path = part
+                            break
+                    if path != _RECORDING_DIR:
+                        break
+                subprocess.Popen(
+                    ["nautilus", "--select", path] if path != _RECORDING_DIR else ["nautilus", path],
                     start_new_session=True,
                 )
                 return
