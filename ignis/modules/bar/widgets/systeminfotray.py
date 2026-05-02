@@ -13,7 +13,7 @@ window_manager = WindowManager.get_default()
 system_tray = SystemTrayService.get_default()
 
 TRAY_BLACKLIST_ID = {"blueman"}
-TRAY_BLACKLIST_TITLE = {"localsend"}
+TRAY_BLACKLIST_TITLE = set()
 
 
 def _is_blacklisted(item: SystemTrayItem) -> bool:
