@@ -4,7 +4,6 @@ from ignis.window_manager import WindowManager
 from ignis.services.notifications import NotificationService
 from modules.m3components import Button
 from .widgets import NotificationCenter, QuickSliders, QuickToggles, CustomTilesWidget, MediaPlayerWidget, LogitechBattery
-from modules.bar.widgets.localsend import LocalSendLauncher
 from user_settings import user_settings
 from ignis.services.niri import NiriService
 
@@ -24,7 +23,6 @@ class QuickCenter(widgets.RevealerWindow):
         media_player = MediaPlayerWidget()
         quick_sliders = QuickSliders()
         logitech_battery = LogitechBattery()
-        localsend = LocalSendLauncher().widget()
         bottom_controls = widgets.Box(
             css_classes=["bottom-controls"],
             hexpand=True,
@@ -50,7 +48,6 @@ class QuickCenter(widgets.RevealerWindow):
                     valign="center",
                     size="xs",
                 ),
-                localsend,
                 logitech_battery,
                 Button.button(
                     icon="clear_all",
