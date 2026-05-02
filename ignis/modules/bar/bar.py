@@ -22,7 +22,6 @@ from .widgets import (
     UpdatesIndicator,
     BackupIndicator,
     AppsButton,
-    QuickMenuButton,
 )
 from .widgets.recording_indicator import RecordingIndicator
 
@@ -46,7 +45,6 @@ class Bar:
         self.updates = UpdatesIndicator()
         self.backup = BackupIndicator()
         self.apps_btn = AppsButton()
-        self.quick_menu = QuickMenuButton()
         self.power_profile_indicator = PowerProfileIndicator()
         self.lavd_toggle = LAVDToggle()
         self.systeminfotray = SystemInfoTray()
@@ -73,7 +71,6 @@ class Bar:
         self.updates_widget = self.updates.widget()
         self.backup_widget = self.backup.widget()
         self.apps_btn_widget = self.apps_btn.widget()
-        self.quick_menu_widget = self.quick_menu.widget()
         self.power_profile_widget = self.power_profile_indicator.widget()
         self.lavd_widget = self.lavd_toggle.widget()
         self.keyboard_layout_widget = self.keyboard_layout.widget()
@@ -284,10 +281,6 @@ class Bar:
             "systeminfotray": {
                 "name": "systeminfotray",
                 "widget": self.systeminfotray_widget,
-            },
-            "quick_menu": {
-                "name": "quick_menu",
-                "widget": self.quick_menu_widget,
             },
         }
 

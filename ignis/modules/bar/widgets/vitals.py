@@ -153,7 +153,7 @@ class Vitals:
         try:
             cpu_f = float(self._cpu_shown) if self._cpu_shown != "--" else None
             if cpu_f is not None:
-                self._badge.set_label(self._cpu_shown)
+                self._badge.set_label(f"{self._cpu_shown}° {self._pwr_shown}W")
                 self._badge.set_visible(True)
                 is_hot = cpu_f > 75
             else:

@@ -397,11 +397,6 @@ class BarModulesCategory(widgets.Box):
                 "widget": "apps_btn",
                 "description": "Кнопка запуска ALT Booster — Приложения.",
             },
-            "quick_menu": {
-                "name": "Быстрое меню",
-                "widget": "quick_menu",
-                "description": "Кнопка открытия выпадающего меню QuickCenter.",
-            },
         }
 
         for module in modules.values():

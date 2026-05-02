@@ -16,7 +16,6 @@ from .localsend import LocalSendLauncher
 from .updates_indicator import UpdatesIndicator
 from .backup_indicator import BackupIndicator
 from .apps_button import AppsButton
-from .quick_menu_button import QuickMenuButton
 
 __all__ = [
     "WindowInfo",
@@ -37,5 +36,4 @@ __all__ = [
     "UpdatesIndicator",
     "BackupIndicator",
     "AppsButton",
-    "QuickMenuButton",
 ]

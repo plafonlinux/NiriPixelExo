@@ -47,7 +47,6 @@ class UserSettings(OptionsManager):
                 updates: int = 2
                 backup: int = 2
                 apps_btn: int = 2
-                quick_menu: int = 2
 
             class Visibility(OptionsGroup):
                 window_info: bool = False
@@ -66,7 +65,6 @@ class UserSettings(OptionsManager):
                 updates: bool = True
                 backup: bool = True
                 apps_btn: bool = True
-                quick_menu: bool = True
 
             class BarID(OptionsGroup):
                 launcher: int = 0
@@ -82,7 +80,6 @@ class UserSettings(OptionsManager):
                 updates: int = 0
                 backup: int = 0
                 apps_btn: int = 0
-                quick_menu: int = 0
 
             class ModuleOptions(OptionsGroup):
                 show_date: bool = True
