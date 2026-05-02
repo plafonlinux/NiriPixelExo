@@ -132,7 +132,7 @@ class UserSettings(OptionsManager):
             record_audio: bool = True
 
         class OSD(OptionsGroup):
-            anchor: list = ["bottom", "right"]
+            anchor: list = ["bottom"]
             vertical: bool = False
 
         recorder = Recorder()
