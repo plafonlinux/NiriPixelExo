@@ -28,7 +28,7 @@ def _on_recording_started(service):
 
         if options.start_notification:
             send_notification(
-                "Recording Started", f"Recording to: {last_recording_path}"
+                "Запись начата", f"Сохраняется: {last_recording_path}"
             )
 
 
@@ -39,7 +39,7 @@ def _on_recording_stopped(service):
     if last_recording_path:
         if options.stop_notification:
             send_notification(
-                "Recording Stopped", f"Recording saved to: {last_recording_path}"
+                "Запись остановлена", f"Сохранено: {last_recording_path}"
             )
     last_recording_path = None
 
@@ -61,18 +61,18 @@ async def _start_recording_task(source: str, file_path: str, **kwargs):
             recording_indicator_instance.stop_timer()
         last_recording_path = None
         send_notification(
-            "Recording Canceled", "The desktop portal capture was canceled."
+            "Запись отменена", "Захват через портал был отменён."
         )
     except Exception as e:
         last_recording_path = None
-        send_notification("Recording Error", f"An unexpected error occurred: {str(e)}")
+        send_notification("Ошибка записи", f"Произошла ошибка: {str(e)}")
 
 
 def _record_source(source: str, *args: str, **kwargs):
     global last_recording_path
 
     if not recorder.is_available:
-        send_notification("No recorder", "gpu-screen-recorder was not found.")
+        send_notification("Нет рекордера", "gpu-screen-recorder не найден.")
         return
 
     if recorder.active:
@@ -125,7 +125,7 @@ async def _record_region_task():
             recorder.stop_recording()
             return
 
-        send_notification("Region Selection", "Please select a region to record.")
+        send_notification("Выбор области", "Выделите область для записи.")
 
         proc = await asyncio.create_subprocess_exec(
             "slurp", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
@@ -135,19 +135,19 @@ async def _record_region_task():
         if proc.returncode != 0:
             if proc.returncode == 127:
                 send_notification(
-                    "Dependency Missing",
-                    "The 'slurp' tool is required for region recording but was not found.",
+                    "Не хватает зависимости",
+                    "Утилита slurp не найдена.",
                 )
             else:
                 send_notification(
-                    "Region Selection Canceled",
-                    "No region was selected or an error occurred.",
+                    "Выбор области отменён",
+                    "Область не выбрана или произошла ошибка.",
                 )
             return
 
         region_str = stdout.decode().strip()
         if not region_str:
-            send_notification("Region Selection Canceled", "No region was selected.")
+            send_notification("Выбор области отменён", "Область не выбрана.")
             return
 
         # Reformat the region string from 'X,Y WxH' to 'WxH+X+Y'
@@ -159,12 +159,12 @@ async def _record_region_task():
 
     except FileNotFoundError:
         send_notification(
-            "Dependency Missing",
-            "The 'slurp' tool is required for region recording but was not found.",
+            "Не хватает зависимости",
+            "Утилита slurp не найдена.",
         )
     except Exception as e:
         send_notification(
-            "Region Selection Error", f"An unexpected error occurred: {str(e)}"
+            "Ошибка выбора области", f"Произошла ошибка: {str(e)}"
         )
 
 
