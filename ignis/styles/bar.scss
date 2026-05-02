@@ -870,6 +870,22 @@
     }
 }
 
+.quick-menu-btn {
+    padding: 0px 8px;
+    border-radius: 15px;
+    transition: 200ms;
+
+    .quick-menu-icon {
+        font-family: "Material Symbols Outlined";
+        font-size: 13pt;
+    }
+
+    &:hover {
+        background: colors.$primary_container;
+        color: colors.$on_primary_container;
+    }
+}
+
 .power-profile-indicator {
     padding: 0px 10px;
     border-radius: 15px;

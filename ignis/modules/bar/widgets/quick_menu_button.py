@@ -2,17 +2,17 @@ import subprocess
 from ignis import widgets
 
 
-class AppsButton:
+class QuickMenuButton:
     def __init__(self):
         self._button = widgets.Button(
             child=widgets.Label(
-                label="apps",
-                css_classes=["apps-btn-icon"],
+                label="menu",
+                css_classes=["quick-menu-icon"],
             ),
-            css_classes=["apps-btn"],
-            tooltip_text="ALT Booster — Приложения",
+            css_classes=["quick-menu-btn"],
+            tooltip_text="Быстрое меню",
             on_click=lambda _: subprocess.Popen(
-                ["altbooster", "-a"], start_new_session=True
+                ["ignis", "open-window", "QuickCenter"], start_new_session=True
             ),
         )
 

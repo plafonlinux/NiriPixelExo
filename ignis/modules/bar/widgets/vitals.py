@@ -62,9 +62,11 @@ class Vitals:
         )
 
         self._button = widgets.Button(
-            child=widgets.Box(
-                spacing=2,
-                child=[self._icon, self._badge],
+            child=widgets.Overlay(
+                child=widgets.Box(
+                    spacing=2,
+                    child=[self._icon, self._badge],
+                ),
             ),
             css_classes=["vitals"],
             tooltip_text="Системный монитор",
@@ -95,37 +97,31 @@ class Vitals:
             pass
         return shown
 
-    def _on_clicked(self, _btn):
+    def _on_clicked(self, btn):
         menu_items = [
             IgnisMenuItem(
                 label=f"CPU          {self._cpu_shown}°C",
-                icon_name="device_thermostat",
                 on_activate=lambda *a: None,
             ),
             IgnisMenuItem(
                 label=f"GPU          {self._gpu_shown}°C",
-                icon_name="memory",
                 on_activate=lambda *a: None,
             ),
             IgnisMenuItem(
                 label=f"SSD          {self._ssd_shown}°C",
-                icon_name="hard_disk",
                 on_activate=lambda *a: None,
             ),
             IgnisMenuItem(
                 label=f"Потребление {self._pwr_shown}W",
-                icon_name="bolt",
                 on_activate=lambda *a: None,
             ),
             IgnisMenuItem(
                 label=f"Mesa         {self._mesa}",
-                icon_name="display_settings",
                 on_activate=lambda *a: None,
             ),
             IgnisMenuSeparator(),
             IgnisMenuItem(
                 label="Открыть btop",
-                icon_name="monitoring",
                 on_activate=lambda *a: subprocess.Popen(
                     ["kitty", "-e", "btop"], start_new_session=True
                 ),
@@ -133,9 +129,11 @@ class Vitals:
         ]
 
         model = IgnisMenuModel(*menu_items)
-        self._popover = widgets.PopoverMenu(model=model, css_classes=["vitals-popover"])
-        self._popover.set_parent(self._button)
-        self._popover.popup()
+        popover = widgets.PopoverMenu(model=model, css_classes=["vitals-popover"])
+        container = btn.get_child()
+        if container and hasattr(container, "add_overlay"):
+            container.add_overlay(popover)
+            popover.popup()
 
     def _update(self):
         cpu_t, gpu_t, ssd_t, pwr_w = _read_sensors()

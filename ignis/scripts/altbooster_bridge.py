@@ -20,9 +20,9 @@ _UPDATES_CACHE_TTL = 3 * 3600
 _BACKUP_CACHE_TTL = 30 * 60
 
 
-def _run(cmd, timeout=30):
+def _run(cmd, timeout=30, env=None):
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
         return r
     except Exception:
         return None

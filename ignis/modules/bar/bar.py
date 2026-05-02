@@ -22,6 +22,7 @@ from .widgets import (
     UpdatesIndicator,
     BackupIndicator,
     AppsButton,
+    QuickMenuButton,
 )
 from .widgets.recording_indicator import RecordingIndicator
 
@@ -45,6 +46,7 @@ class Bar:
         self.updates = UpdatesIndicator()
         self.backup = BackupIndicator()
         self.apps_btn = AppsButton()
+        self.quick_menu = QuickMenuButton()
         self.power_profile_indicator = PowerProfileIndicator()
         self.lavd_toggle = LAVDToggle()
         self.systeminfotray = SystemInfoTray()
@@ -71,6 +73,7 @@ class Bar:
         self.updates_widget = self.updates.widget()
         self.backup_widget = self.backup.widget()
         self.apps_btn_widget = self.apps_btn.widget()
+        self.quick_menu_widget = self.quick_menu.widget()
         self.power_profile_widget = self.power_profile_indicator.widget()
         self.lavd_widget = self.lavd_toggle.widget()
         self.keyboard_layout_widget = self.keyboard_layout.widget()
@@ -230,10 +233,6 @@ class Bar:
                 "name": "window_info",
                 "widget": self.window_info_widget,
             },
-            "media": {
-                "name": "media",
-                "widget": self.media_widget,
-            },
             "workspaces": {
                 "name": "workspaces",
                 "widget": self.workspaces_widget,
@@ -242,6 +241,14 @@ class Bar:
                 "name": "tasks",
                 "widget": self.tasks_widget,
             },
+            "media": {
+                "name": "media",
+                "widget": self.media_widget,
+            },
+            "clock": {
+                "name": "clock",
+                "widget": self.clock_widget,
+            },
             "recording_indicator": {
                 "name": "recording_indicator",
                 "widget": self.recording_indicator_widget,
@@ -249,6 +256,18 @@ class Bar:
             "vitals": {
                 "name": "vitals",
                 "widget": self.vitals_widget,
+            },
+            "updates": {
+                "name": "updates",
+                "widget": self.updates_widget,
+            },
+            "backup": {
+                "name": "backup",
+                "widget": self.backup_widget,
+            },
+            "apps_btn": {
+                "name": "apps_btn",
+                "widget": self.apps_btn_widget,
             },
             "power_profile": {
                 "name": "power_profile",
@@ -266,21 +285,9 @@ class Bar:
                 "name": "systeminfotray",
                 "widget": self.systeminfotray_widget,
             },
-            "clock": {
-                "name": "clock",
-                "widget": self.clock_widget,
-            },
-            "updates": {
-                "name": "updates",
-                "widget": self.updates_widget,
-            },
-            "backup": {
-                "name": "backup",
-                "widget": self.backup_widget,
-            },
-            "apps_btn": {
-                "name": "apps_btn",
-                "widget": self.apps_btn_widget,
+            "quick_menu": {
+                "name": "quick_menu",
+                "widget": self.quick_menu_widget,
             },
         }
 
@@ -307,7 +314,7 @@ class Bar:
                 raise ValueError("Invalid bar id")
 
         for widget in widgets.values():
-            if widget["name"] in ("vitals", "power_profile", "lavd", "updates", "backup"):
+            if widget["name"] in ("vitals", "power_profile", "lavd"):
                 # These always follow systeminfotray's position
                 a = getattr(location_setting, "systeminfotray")
                 b = getattr(bar_id_setting, "systeminfotray")
