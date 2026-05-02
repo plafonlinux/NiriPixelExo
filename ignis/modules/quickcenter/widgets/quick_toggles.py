@@ -282,3 +282,25 @@ class QuickToggles(widgets.Box):
             spacing=8,
             child=[row1, row2, row3],
         )
+
+        def _refresh_row1(*_):
+            wifi_tile.set_visible(qt.show_wifi)
+            bt_tile.set_visible(qt.show_bluetooth and _bt_available())
+            row1.set_visible(qt.show_wifi or (qt.show_bluetooth and _bt_available()))
+
+        def _refresh_row2(*_):
+            tuner_tile.set_visible(qt.show_tuner)
+            gnome_tile.set_visible(qt.show_gnome_settings)
+            row2.set_visible(qt.show_tuner or qt.show_gnome_settings)
+
+        def _refresh_row3(*_):
+            thunderbird_tile.set_visible(qt.show_thunderbird)
+            bitwarden_tile.set_visible(qt.show_bitwarden)
+            row3.set_visible(qt.show_thunderbird or qt.show_bitwarden)
+
+        qt.connect("notify::show-wifi", _refresh_row1)
+        qt.connect("notify::show-bluetooth", _refresh_row1)
+        qt.connect("notify::show-tuner", _refresh_row2)
+        qt.connect("notify::show-gnome-settings", _refresh_row2)
+        qt.connect("notify::show-thunderbird", _refresh_row3)
+        qt.connect("notify::show-bitwarden", _refresh_row3)

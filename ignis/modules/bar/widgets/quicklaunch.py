@@ -85,5 +85,10 @@ class QuickLaunch:
             visible=ql.enabled,
         )
 
+        ql.connect("notify::enabled", lambda o, _: self.box.set_visible(o.enabled))
+        ql.connect("notify::show-chrome", lambda o, _: chrome.set_visible(o.show_chrome))
+        ql.connect("notify::show-ai", lambda o, _: gemini.set_visible(o.show_ai))
+        ql.connect("notify::show-localsend", lambda o, _: localsend.set_visible(o.show_localsend))
+
     def widget(self):
         return self.box
