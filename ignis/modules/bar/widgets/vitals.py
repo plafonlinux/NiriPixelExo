@@ -6,7 +6,7 @@ from ignis import widgets
 
 def _run(cmd):
     try:
-        return subprocess.check_output(cmd, text=True, stderr=subprocess.DEVNULL)
+        return subprocess.run(cmd, capture_output=True, text=True).stdout
     except Exception:
         return ""
 
@@ -67,9 +67,9 @@ class Vitals:
         GLib.timeout_add_seconds(3, self._update)
 
     def _fetch_mesa(self):
-        out = _run(["glxinfo"])
+        out = _run(["eglinfo"])
         for line in out.splitlines():
-            if "OpenGL version string" in line and "Mesa" in line:
+            if "Mesa " in line and "OpenGL" in line:
                 part = line.split("Mesa ")[-1].strip().rstrip(")")
                 self._mesa = part.split()[0]
                 break
