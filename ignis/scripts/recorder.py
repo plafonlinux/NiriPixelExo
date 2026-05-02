@@ -80,7 +80,7 @@ def _record_source(source: str, *args: str, **kwargs):
         return
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    file_path = os.path.expanduser(f"~/Videos/recording_{timestamp}.mp4")
+    file_path = os.path.expanduser(f"~/Видео/Запись экрана/recording_{timestamp}.mp4")
     last_recording_path = file_path
 
     asyncio.create_task(
