@@ -211,96 +211,47 @@ class BtTile(widgets.Box):
 
 class QuickToggles(widgets.Box):
     def __init__(self):
+        super().__init__(vertical=True, spacing=8)
+
         qt = user_settings.interface.quicktoggles
 
-        wifi_tile = WiFiTile()
-        wifi_tile.set_visible(qt.show_wifi)
+        self._tiles = [
+            (WiFiTile(),        lambda: qt.show_wifi),
+            (BtTile(),          lambda: qt.show_bluetooth and _bt_available()),
+            (LauncherTile(icon="tune", label="Тюнер", subtitle="Управление системой", command=["tuner"]), lambda: qt.show_tuner),
+            (LauncherTile(icon="settings_applications", label="Настройки GNOME", subtitle="Системные", command=["gnome-control-center"], env={**os.environ, "XDG_CURRENT_DESKTOP": "GNOME"}), lambda: qt.show_gnome_settings),
+            (LauncherTile(icon="mail", label="Thunderbird", subtitle="Почта", command=["flatpak", "run", "org.mozilla.Thunderbird"]), lambda: qt.show_thunderbird),
+            (LauncherTile(icon="lock", label="Bitwarden", subtitle="Пароли", command=["flatpak", "run", "com.bitwarden.desktop"]), lambda: qt.show_bitwarden),
+        ]
 
-        bt_tile = BtTile()
-        bt_tile.set_visible(qt.show_bluetooth and _bt_available())
+        self._rebuild()
 
-        tuner_tile = LauncherTile(
-            icon="tune",
-            label="Тюнер",
-            subtitle="Управление системой",
-            command=["tuner"],
-        )
-        tuner_tile.set_visible(qt.show_tuner)
+        for opt in ("show_wifi", "show_bluetooth", "show_tuner", "show_gnome_settings", "show_thunderbird", "show_bitwarden"):
+            qt.connect_option(opt, self._rebuild)
 
-        gnome_tile = LauncherTile(
-            icon="settings_applications",
-            label="Настройки GNOME",
-            subtitle="Системные",
-            command=["gnome-control-center"],
-            env={**os.environ, "XDG_CURRENT_DESKTOP": "GNOME"},
-        )
-        gnome_tile.set_visible(qt.show_gnome_settings)
+    def _rebuild(self, *_):
+        visible = [tile for tile, check in self._tiles if check()]
 
-        thunderbird_tile = LauncherTile(
-            icon="mail",
-            label="Thunderbird",
-            subtitle="Почта",
-            command=["flatpak", "run", "org.mozilla.Thunderbird"],
-        )
-        thunderbird_tile.set_visible(qt.show_thunderbird)
+        for tile, _ in self._tiles:
+            parent = tile.get_parent()
+            if parent is not None:
+                parent.remove(tile)
 
-        bitwarden_tile = LauncherTile(
-            icon="lock",
-            label="Bitwarden",
-            subtitle="Пароли",
-            command=["flatpak", "run", "com.bitwarden.desktop"],
-        )
-        bitwarden_tile.set_visible(qt.show_bitwarden)
+        child = self.get_first_child()
+        while child is not None:
+            nxt = child.get_next_sibling()
+            self.remove(child)
+            child = nxt
 
-        row1 = widgets.Box(
-            css_classes=["quick-tiles-row"],
-            hexpand=True,
-            homogeneous=True,
-            spacing=8,
-            child=[wifi_tile, bt_tile],
-            visible=(qt.show_wifi or (qt.show_bluetooth and _bt_available())),
-        )
-        row2 = widgets.Box(
-            css_classes=["quick-tiles-row"],
-            hexpand=True,
-            homogeneous=True,
-            spacing=8,
-            child=[tuner_tile, gnome_tile],
-            visible=(qt.show_tuner or qt.show_gnome_settings),
-        )
-        row3 = widgets.Box(
-            css_classes=["quick-tiles-row"],
-            hexpand=True,
-            homogeneous=True,
-            spacing=8,
-            child=[thunderbird_tile, bitwarden_tile],
-            visible=(qt.show_thunderbird or qt.show_bitwarden),
-        )
-
-        super().__init__(
-            vertical=True,
-            spacing=8,
-            child=[row1, row2, row3],
-        )
-
-        def _refresh_row1(*_):
-            wifi_tile.set_visible(qt.show_wifi)
-            bt_tile.set_visible(qt.show_bluetooth and _bt_available())
-            row1.set_visible(qt.show_wifi or (qt.show_bluetooth and _bt_available()))
-
-        def _refresh_row2(*_):
-            tuner_tile.set_visible(qt.show_tuner)
-            gnome_tile.set_visible(qt.show_gnome_settings)
-            row2.set_visible(qt.show_tuner or qt.show_gnome_settings)
-
-        def _refresh_row3(*_):
-            thunderbird_tile.set_visible(qt.show_thunderbird)
-            bitwarden_tile.set_visible(qt.show_bitwarden)
-            row3.set_visible(qt.show_thunderbird or qt.show_bitwarden)
-
-        qt.connect_option("show_wifi", _refresh_row1)
-        qt.connect_option("show_bluetooth", _refresh_row1)
-        qt.connect_option("show_tuner", _refresh_row2)
-        qt.connect_option("show_gnome_settings", _refresh_row2)
-        qt.connect_option("show_thunderbird", _refresh_row3)
-        qt.connect_option("show_bitwarden", _refresh_row3)
+        for i in range(0, len(visible), 2):
+            pair = visible[i:i + 2]
+            if len(pair) == 1:
+                pair.append(widgets.Box(hexpand=True))
+            row = widgets.Box(
+                css_classes=["quick-tiles-row"],
+                hexpand=True,
+                homogeneous=True,
+                spacing=8,
+                child=pair,
+            )
+            self.append(row)
