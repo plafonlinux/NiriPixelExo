@@ -211,7 +211,7 @@ binds {
     Mod+E      hotkey-overlay-title="Файловый менеджер"          { spawn "nautilus"; }
     Mod+W      hotkey-overlay-title="Браузер"                    { spawn "flatpak" "run" "com.google.Chrome"; }
     Mod+Z      hotkey-overlay-title="Telegram"                   { spawn "telegram-desktop"; }
-    Mod+N      hotkey-overlay-title="Уведомления"                { spawn "ignis" "open-window" "NotificationCenter"; }
+    Mod+N      hotkey-overlay-title="Быстрое меню"              { spawn "ignis" "open-window" "QuickCenter"; }
     Super+L    hotkey-overlay-title="Заблокировать экран"        { spawn "hyprlock"; }
 
     // ── Окна ──────────────────────────────────
