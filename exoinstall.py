@@ -795,6 +795,30 @@ class ExoInstaller:
         if shutil.which("exoupdate") is None:
             self.install_as_command()
 
+        self.install_sddm_config()
+
+    def install_sddm_config(self):
+        sddm_conf_d = "/etc/sddm.conf.d"
+        sddm_source = os.path.join(
+            self.source_dir, "exodefaults", "sddm-virtualkeyboard.conf"
+        )
+        sddm_dest = os.path.join(sddm_conf_d, "virtualkeyboard.conf")
+        if not os.path.exists(sddm_source):
+            return
+        print("\nInstalling SDDM config to disable on-screen keyboard...")
+        if self.dry_run:
+            print(f"{self.Colors.YELLOW}[DRY RUN] Would copy {sddm_source} to {sddm_dest}{self.Colors.ENDC}")
+            return
+        result = self.run_command(["sudo", "mkdir", "-p", sddm_conf_d])
+        if result is not None and hasattr(result, "returncode") and result.returncode != 0:
+            print(f"{self.Colors.RED}Failed to create {sddm_conf_d}{self.Colors.ENDC}")
+            return
+        result = self.run_command(["sudo", "cp", sddm_source, sddm_dest])
+        if result is not None and hasattr(result, "returncode") and result.returncode != 0:
+            print(f"{self.Colors.RED}Failed to install SDDM config.{self.Colors.ENDC}")
+        else:
+            print(f"{self.Colors.GREEN}SDDM on-screen keyboard disabled.{self.Colors.ENDC}")
+
     def full_install(self):
         self.print_header("Starting Full Exo Installation")
 
