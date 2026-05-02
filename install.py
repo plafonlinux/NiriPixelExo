@@ -170,6 +170,7 @@ class InstallWorker:
             self._step("Настройка обоев",             self._s_wallpaper)
             self._step("Генерация цветовой схемы",    self._s_colors)
             self._step("Автозапуск в Niri",           self._s_autostart)
+            self._step("Установка SDDM + тема Pixie", self._s_sddm)
             GLib.idle_add(self._done, True, "")
         except Exception as exc:
             GLib.idle_add(self._done, False, str(exc))
@@ -475,6 +476,44 @@ class InstallWorker:
         else:
             self._emit("  Обои не найдены — пропускаю генерацию цветов")
 
+    def _s_sddm(self):
+        # Install SDDM package
+        if not shutil.which("sddm"):
+            self._emit("  apt: sddm")
+            self._apt("sddm")
+        else:
+            self._emit("  ✓ sddm уже установлен")
+
+        # Clone and install pixie theme
+        theme_dst = Path("/usr/share/sddm/themes/pixie")
+        priv = self._priv()
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "pixie"
+            self._sh(["git", "clone", "--depth=1",
+                      "https://github.com/xCaptaiN09/pixie-sddm", str(src)])
+            self._sh(priv + ["mkdir", "-p", str(theme_dst)])
+            for item in ("assets", "components", "Main.qml", "metadata.desktop",
+                         "theme.conf", "LICENSE"):
+                self._sh(priv + ["cp", "-r", str(src / item), str(theme_dst / item)])
+            self._sh(priv + ["chmod", "-R", "755", str(theme_dst)])
+
+        # Apply Russian-translated Main.qml and theme.conf
+        for fname in ("Main.qml", "theme.conf"):
+            our_file = CONFIGS_DIR / "sddm" / fname
+            if our_file.exists():
+                self._sh(priv + ["cp", str(our_file), str(theme_dst / fname)])
+        self._emit("  Применены русскоязычные файлы темы")
+
+        # Write SDDM theme config
+        conf_tmp = Path(tempfile.mktemp(suffix=".conf"))
+        conf_tmp.write_text("[Theme]\nCurrent=pixie\n")
+        self._sh(priv + ["mkdir", "-p", "/etc/sddm.conf.d"])
+        self._sh(priv + ["cp", str(conf_tmp), "/etc/sddm.conf.d/theme.conf"])
+        conf_tmp.unlink(missing_ok=True)
+
+        self._emit("  SDDM готов. Для переключения с greetd:")
+        self._emit("  sudo systemctl disable greetd && sudo systemctl enable sddm")
+
     def _s_autostart(self):
         ignis = (shutil.which("ignis", path=self._env_path())
                  or str(LOCAL_BIN / "ignis"))
@@ -596,6 +635,7 @@ class InstallerWindow(Gtk.ApplicationWindow):
             ("Конфигурация Эхо",         "Копируется в ~/.config/ignis/"),
             ("Конфиги niri, kitty…",     "Готовая настройка среды (по выбору)"),
             ("Автозапуск",               "spawn-at-startup добавляется в niri config.kdl"),
+            ("SDDM + тема Pixie",        "Экран входа — устанавливается в /usr/share/sddm/themes/"),
         ]:
             row = self._hbox(spacing=10)
             row.set_margin_start(4)
@@ -855,7 +895,10 @@ class InstallerWindow(Gtk.ApplicationWindow):
             self._done_title.set_label("Установка завершена!")
             self._done_desc.set_label(
                 "Перезапусти сессию Niri — панель запустится автоматически.\n"
-                "Или нажми «Запустить Эхо» прямо сейчас."
+                "Или нажми «Запустить Эхо» прямо сейчас.\n\n"
+                "SDDM установлен. Для переключения экрана входа:\n"
+                "sudo systemctl disable greetd\n"
+                "sudo systemctl enable sddm"
             )
         else:
             self._done_icon.set_label("✗")
