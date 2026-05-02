@@ -761,15 +761,20 @@
 }
 
 .vitals {
-    padding: 0px 10px;
+    padding: 0px 8px;
     border-radius: 15px;
     transition: 200ms;
 
-    .vitals-text {
+    .vitals-icon {
+        font-family: "Material Symbols Outlined";
+        font-size: 13pt;
+    }
+
+    .vitals-badge {
         font-family: monospace;
-        font-size: 8.5pt;
-        font-weight: 500;
-        letter-spacing: 0.02em;
+        font-size: 7.5pt;
+        font-weight: 600;
+        padding: 0px 3px;
     }
 
     &:hover {
@@ -784,6 +789,84 @@
         &:hover {
             background: colors.$error_container;
         }
+    }
+}
+
+.vitals-popover {
+    padding: 8px;
+}
+
+.updates-indicator {
+    padding: 0px 8px;
+    border-radius: 15px;
+    transition: 200ms;
+
+    .updates-icon {
+        font-family: "Material Symbols Outlined";
+        font-size: 13pt;
+    }
+
+    .updates-badge {
+        font-family: monospace;
+        font-size: 7.5pt;
+        font-weight: 600;
+        padding: 0px 3px;
+    }
+
+    &:hover {
+        background: colors.$primary_container;
+        color: colors.$on_primary_container;
+    }
+
+    &.updates-ok {
+        color: colors.$on_surface_variant;
+    }
+
+    &.updates-available {
+        color: #E6A817;
+    }
+}
+
+.backup-indicator {
+    padding: 0px 8px;
+    border-radius: 15px;
+    transition: 200ms;
+
+    .backup-icon {
+        font-family: "Material Symbols Outlined";
+        font-size: 11pt;
+    }
+
+    .backup-text {
+        font-family: monospace;
+        font-size: 7.5pt;
+        font-weight: 500;
+    }
+
+    &:hover {
+        background: colors.$primary_container;
+        color: colors.$on_primary_container;
+    }
+}
+
+.apps-btn {
+    padding: 0px 10px;
+    border-radius: 15px;
+    transition: 200ms;
+
+    .apps-btn-icon {
+        font-family: "Material Symbols Outlined";
+        font-size: 12pt;
+    }
+
+    .apps-btn-text {
+        font-size: 8.5pt;
+        font-weight: 500;
+    }
+
+    &:hover {
+        background: colors.$primary_container;
+        color: colors.$on_primary_container;
     }
 }
 

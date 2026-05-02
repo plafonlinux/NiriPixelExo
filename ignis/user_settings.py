@@ -44,6 +44,9 @@ class UserSettings(OptionsManager):
                 clock: int = 1
                 vitals: int = 2
                 keyboard_layout: int = 2
+                updates: int = 2
+                backup: int = 2
+                apps_btn: int = 2
 
             class Visibility(OptionsGroup):
                 window_info: bool = False
@@ -59,6 +62,9 @@ class UserSettings(OptionsManager):
                 lavd: bool = True
                 localsend: bool = True
                 keyboard_layout: bool = True
+                updates: bool = True
+                backup: bool = True
+                apps_btn: bool = True
 
             class BarID(OptionsGroup):
                 launcher: int = 0
@@ -71,6 +77,9 @@ class UserSettings(OptionsManager):
                 clock: int = 0
                 vitals: int = 0
                 keyboard_layout: int = 0
+                updates: int = 0
+                backup: int = 0
+                apps_btn: int = 0
 
             class ModuleOptions(OptionsGroup):
                 show_date: bool = True

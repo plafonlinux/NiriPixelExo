@@ -382,6 +382,21 @@ class BarModulesCategory(widgets.Box):
                 "widget": "vitals",
                 "description": "CPU, GPU, SSD температуры и потребление GPU.",
             },
+            "updates": {
+                "name": "Обновления",
+                "widget": "updates",
+                "description": "Индикатор доступных обновлений системы.",
+            },
+            "backup": {
+                "name": "Бэкапы",
+                "widget": "backup",
+                "description": "Статус резервного копирования TimeSync.",
+            },
+            "apps_btn": {
+                "name": "Приложения",
+                "widget": "apps_btn",
+                "description": "Кнопка запуска ALT Booster — Приложения.",
+            },
         }
 
         for module in modules.values():

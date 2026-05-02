@@ -13,6 +13,9 @@ from .keyboard_layout import KeyboardLayout
 from .power_profile_indicator import PowerProfileIndicator
 from .lavd_toggle import LAVDToggle
 from .localsend import LocalSendLauncher
+from .updates_indicator import UpdatesIndicator
+from .backup_indicator import BackupIndicator
+from .apps_button import AppsButton
 
 __all__ = [
     "WindowInfo",
@@ -30,4 +33,7 @@ __all__ = [
     "PowerProfileIndicator",
     "LAVDToggle",
     "LocalSendLauncher",
+    "UpdatesIndicator",
+    "BackupIndicator",
+    "AppsButton",
 ]

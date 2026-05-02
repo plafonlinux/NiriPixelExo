@@ -1,7 +1,8 @@
 import subprocess
 import threading
-from gi.repository import GLib
 from ignis import widgets
+from ignis.menu_model import IgnisMenuModel, IgnisMenuItem, IgnisMenuSeparator
+from gi.repository import GLib
 
 
 def _run(cmd):
@@ -36,8 +37,8 @@ def _read_sensors():
     return cpu_t, gpu_t, ssd_t, pwr_w
 
 
-_TEMP_DEAD_ZONE = 1.0  # °C
-_PWR_DEAD_ZONE  = 5    # W
+_TEMP_DEAD_ZONE = 1.0
+_PWR_DEAD_ZONE = 5
 
 
 class Vitals:
@@ -50,17 +51,26 @@ class Vitals:
         self._ssd_shown: str = "--"
         self._pwr_shown: int = -1
 
-        self._label = widgets.Label(
-            label="CPU --C  GPU --C  SSD --C  0W  ...",
-            css_classes=["vitals-text"],
+        self._icon = widgets.Label(
+            label="device_thermostat",
+            css_classes=["vitals-icon"],
+        )
+        self._badge = widgets.Label(
+            label="",
+            css_classes=["vitals-badge"],
+            visible=False,
         )
 
         self._button = widgets.Button(
-            child=self._label,
+            child=widgets.Box(
+                spacing=2,
+                child=[self._icon, self._badge],
+            ),
             css_classes=["vitals"],
             tooltip_text="Системный монитор",
-            on_click=lambda _: subprocess.Popen(["kitty", "-e", "btop"]),
         )
+
+        self._button.connect("clicked", self._on_clicked)
 
         threading.Thread(target=self._fetch_mesa, daemon=True).start()
 
@@ -85,6 +95,48 @@ class Vitals:
             pass
         return shown
 
+    def _on_clicked(self, _btn):
+        menu_items = [
+            IgnisMenuItem(
+                label=f"CPU          {self._cpu_shown}°C",
+                icon_name="device_thermostat",
+                on_activate=lambda *a: None,
+            ),
+            IgnisMenuItem(
+                label=f"GPU          {self._gpu_shown}°C",
+                icon_name="memory",
+                on_activate=lambda *a: None,
+            ),
+            IgnisMenuItem(
+                label=f"SSD          {self._ssd_shown}°C",
+                icon_name="hard_disk",
+                on_activate=lambda *a: None,
+            ),
+            IgnisMenuItem(
+                label=f"Потребление {self._pwr_shown}W",
+                icon_name="bolt",
+                on_activate=lambda *a: None,
+            ),
+            IgnisMenuItem(
+                label=f"Mesa         {self._mesa}",
+                icon_name="display_settings",
+                on_activate=lambda *a: None,
+            ),
+            IgnisMenuSeparator(),
+            IgnisMenuItem(
+                label="Открыть btop",
+                icon_name="monitoring",
+                on_activate=lambda *a: subprocess.Popen(
+                    ["kitty", "-e", "btop"], start_new_session=True
+                ),
+            ),
+        ]
+
+        model = IgnisMenuModel(*menu_items)
+        self._popover = widgets.PopoverMenu(model=model, css_classes=["vitals-popover"])
+        self._popover.set_parent(self._button)
+        self._popover.popup()
+
     def _update(self):
         cpu_t, gpu_t, ssd_t, pwr_w = _read_sensors()
 
@@ -99,13 +151,17 @@ class Vitals:
         if self._pwr_shown < 0 or abs(avg_pwr - self._pwr_shown) >= _PWR_DEAD_ZONE:
             self._pwr_shown = avg_pwr
 
-        text = f"CPU {self._cpu_shown}C  GPU {self._gpu_shown}C  SSD {self._ssd_shown}C  {self._pwr_shown}W  {self._mesa}"
-        self._label.set_label(text)
-
+        is_hot = False
         try:
-            is_hot = self._cpu_shown != "--" and float(self._cpu_shown) > 75
-        except ValueError:
-            is_hot = False
+            cpu_f = float(self._cpu_shown) if self._cpu_shown != "--" else None
+            if cpu_f is not None:
+                self._badge.set_label(self._cpu_shown)
+                self._badge.set_visible(True)
+                is_hot = cpu_f > 75
+            else:
+                self._badge.set_visible(False)
+        except (ValueError, TypeError):
+            self._badge.set_visible(False)
 
         if is_hot:
             self._button.add_css_class("vitals-hot")

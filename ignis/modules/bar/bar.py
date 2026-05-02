@@ -19,6 +19,9 @@ from .widgets import (
     Vitals,
     WindowInfo,
     Workspaces,
+    UpdatesIndicator,
+    BackupIndicator,
+    AppsButton,
 )
 from .widgets.recording_indicator import RecordingIndicator
 
@@ -39,6 +42,9 @@ class Bar:
         self.launcher = Launcher()
         self.quicklaunch = QuickLaunch()
         self.vitals = Vitals()
+        self.updates = UpdatesIndicator()
+        self.backup = BackupIndicator()
+        self.apps_btn = AppsButton()
         self.power_profile_indicator = PowerProfileIndicator()
         self.lavd_toggle = LAVDToggle()
         self.systeminfotray = SystemInfoTray()
@@ -62,6 +68,9 @@ class Bar:
         self.launcher_widget = self.launcher.widget()
         self.quicklaunch_widget = self.quicklaunch.widget()
         self.vitals_widget = self.vitals.widget()
+        self.updates_widget = self.updates.widget()
+        self.backup_widget = self.backup.widget()
+        self.apps_btn_widget = self.apps_btn.widget()
         self.power_profile_widget = self.power_profile_indicator.widget()
         self.lavd_widget = self.lavd_toggle.widget()
         self.keyboard_layout_widget = self.keyboard_layout.widget()
@@ -261,6 +270,18 @@ class Bar:
                 "name": "clock",
                 "widget": self.clock_widget,
             },
+            "updates": {
+                "name": "updates",
+                "widget": self.updates_widget,
+            },
+            "backup": {
+                "name": "backup",
+                "widget": self.backup_widget,
+            },
+            "apps_btn": {
+                "name": "apps_btn",
+                "widget": self.apps_btn_widget,
+            },
         }
 
         def location(location, bar_id):
@@ -286,7 +307,7 @@ class Bar:
                 raise ValueError("Invalid bar id")
 
         for widget in widgets.values():
-            if widget["name"] in ("vitals", "power_profile", "lavd"):
+            if widget["name"] in ("vitals", "power_profile", "lavd", "updates", "backup"):
                 # These always follow systeminfotray's position
                 a = getattr(location_setting, "systeminfotray")
                 b = getattr(bar_id_setting, "systeminfotray")
