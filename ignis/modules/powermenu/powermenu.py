@@ -60,7 +60,7 @@ class PowerMenu(widgets.RevealerWindow):
                     icon="dark_mode", label="Сон", command="systemctl suspend"
                 ),
                 PowerMenuButton(
-                    icon="frame_reload", label="Перезапустить Exo", command="ignis reload"
+                    icon="frame_reload", label="Перезапустить Эхо", command="ignis reload"
                 ),
                 PowerMenuButton(
                     icon="settings_applications", label="Перезагрузить в UEFI", command="systemctl reboot --firmware-setup"
