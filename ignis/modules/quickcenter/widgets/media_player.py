@@ -1,6 +1,8 @@
+import threading
+import urllib.request
 from ignis import widgets
 from ignis.services.mpris import MprisService, MprisPlayer
-from gi.repository import GLib, Gtk
+from gi.repository import GLib, Gtk, GdkPixbuf, Gdk, Gio
 
 mpris = MprisService.get_default()
 
@@ -26,6 +28,7 @@ class _PlayerCard(widgets.Box):
         self._dragging = False
 
         self._art = widgets.Icon(pixel_size=72, css_classes=["mp-art"])
+        self._art_gen = 0
         art_box = widgets.Box(css_classes=["mp-art-box"], child=[self._art], valign="start", vexpand=False)
 
         self._title = widgets.Label(
@@ -115,8 +118,44 @@ class _PlayerCard(widgets.Box):
         self._artist.set_label(self._player.artist or "")
 
     def _update_art(self):
-        url = self._player.art_url
-        self._art.set_image(url if url else "audio-x-generic-symbolic")
+        url = self._player.art_url or ""
+        self._art_gen += 1
+        gen = self._art_gen
+
+        if not url:
+            self._art.set_image("audio-x-generic-symbolic")
+        elif url.startswith(("http://", "https://")):
+            threading.Thread(
+                target=self._fetch_art, args=(url, gen), daemon=True
+            ).start()
+        else:
+            self._art.set_image(url.removeprefix("file://"))
+
+    def _fetch_art(self, url: str, gen: int):
+        try:
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "Mozilla/5.0"}
+            )
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                data = resp.read()
+            stream = Gio.MemoryInputStream.new_from_bytes(GLib.Bytes.new(data))
+            pixbuf = GdkPixbuf.Pixbuf.new_from_stream_at_scale(
+                stream, 72, 72, True, None
+            )
+            texture = Gdk.Texture.new_for_pixbuf(pixbuf)
+
+            def apply():
+                if self._art_gen == gen:
+                    self._art.set_from_paintable(texture)
+                return False
+
+            GLib.idle_add(apply)
+        except Exception:
+            def fallback():
+                if self._art_gen == gen:
+                    self._art.set_image("audio-x-generic-symbolic")
+                return False
+            GLib.idle_add(fallback)
 
     def _update_status(self):
         playing = self._player.playback_status == "Playing"
