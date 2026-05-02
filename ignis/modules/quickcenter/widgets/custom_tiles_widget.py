@@ -5,6 +5,26 @@ from modules.shared_modules.custom_tiles_store import get_tiles, connect_changed
 
 class _CustomTile(widgets.Button):
     def __init__(self, tile: dict):
+        subtitle = tile.get("subtitle", "")
+        info_children = [
+            widgets.Label(
+                label=tile["label"],
+                css_classes=["qt-title"],
+                halign="start",
+                hexpand=True,
+                ellipsize="end",
+            ),
+        ]
+        if subtitle:
+            info_children.append(
+                widgets.Label(
+                    label=subtitle,
+                    css_classes=["qt-subtitle"],
+                    halign="start",
+                    hexpand=True,
+                    ellipsize="end",
+                )
+            )
         super().__init__(
             css_classes=["quick-tile", "button"],
             hexpand=True,
@@ -16,12 +36,11 @@ class _CustomTile(widgets.Button):
                         label=tile["icon"],
                         css_classes=["qt-icon", "m3-icon"],
                     ),
-                    widgets.Label(
-                        label=tile["label"],
-                        css_classes=["qt-title"],
+                    widgets.Box(
+                        vertical=True,
+                        spacing=2,
                         halign="start",
-                        hexpand=True,
-                        ellipsize="end",
+                        child=info_children,
                     ),
                 ],
             ),

@@ -257,57 +257,6 @@ class QuickLaunchCategory(widgets.Box):
         )
 
 
-class QuickTogglesTilesCategory(widgets.Box):
-    def __init__(self):
-        qt = user_settings.interface.quicktoggles
-        super().__init__(
-            css_classes=["settings-category"],
-            vertical=True,
-            spacing=0,
-            child=[
-                CategoryLabel("Плитки QuickMenu", "grid_view"),
-                SwitchRow(
-                    title="Wi-Fi",
-                    description="Показывать плитку управления Wi-Fi.",
-                    active=qt.show_wifi,
-                    on_change=lambda x, active: qt.set_show_wifi(active),
-                ),
-                widgets.Separator(),
-                SwitchRow(
-                    title="Bluetooth",
-                    description="Показывать плитку управления Bluetooth.",
-                    active=qt.show_bluetooth,
-                    on_change=lambda x, active: qt.set_show_bluetooth(active),
-                ),
-                widgets.Separator(),
-                SwitchRow(
-                    title="Тюнер",
-                    description="Показывать плитку Тюнера.",
-                    active=qt.show_tuner,
-                    on_change=lambda x, active: qt.set_show_tuner(active),
-                ),
-                widgets.Separator(),
-                SwitchRow(
-                    title="Настройки GNOME",
-                    active=qt.show_gnome_settings,
-                    on_change=lambda x, active: qt.set_show_gnome_settings(active),
-                ),
-                widgets.Separator(),
-                SwitchRow(
-                    title="Thunderbird",
-                    active=qt.show_thunderbird,
-                    on_change=lambda x, active: qt.set_show_thunderbird(active),
-                ),
-                widgets.Separator(),
-                SwitchRow(
-                    title="Bitwarden",
-                    active=qt.show_bitwarden,
-                    on_change=lambda x, active: qt.set_show_bitwarden(active),
-                ),
-            ],
-        )
-
-
 class ServicesTab(widgets.Box):
     def __init__(self):
         super().__init__(
@@ -320,6 +269,5 @@ class ServicesTab(widgets.Box):
         )
         self.append(NotificationsCategory())
         self.append(QuickLaunchCategory())
-        self.append(QuickTogglesTilesCategory())
         self.append(RecordingCategory())
         self.append(OSDCategory())

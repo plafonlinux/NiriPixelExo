@@ -6,6 +6,7 @@ from .bluetooth import BluetoothTab
 from .about import AboutTab
 from .services import ServicesTab
 from .custom_tiles_tab import CustomTilesTab
+from .quick_menu_tab import QuickMenuTab
 
 __all__ = [
     "QuickTab",
@@ -16,4 +17,5 @@ __all__ = [
     "AboutTab",
     "ServicesTab",
     "CustomTilesTab",
+    "QuickMenuTab",
 ]

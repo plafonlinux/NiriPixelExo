@@ -22,9 +22,9 @@ def get_tiles() -> list[dict]:
     return _load()
 
 
-def add_tile(icon: str, label: str, command: str) -> None:
+def add_tile(icon: str, label: str, command: str, subtitle: str = "") -> None:
     tiles = _load()
-    tiles.append({"icon": icon.strip(), "label": label.strip(), "command": command.strip()})
+    tiles.append({"icon": icon.strip(), "label": label.strip(), "subtitle": subtitle.strip(), "command": command.strip()})
     _save(tiles)
     _notify()
 
