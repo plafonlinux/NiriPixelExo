@@ -65,6 +65,11 @@ class PowerMenu(widgets.RevealerWindow):
                 PowerMenuButton(
                     icon="settings_applications", label="Перезагрузить в UEFI", command="systemctl reboot --firmware-setup"
                 ),
+                PowerMenuButton(
+                    icon="autorenew",
+                    label="Перезапустить Niri",
+                    command="niri msg action quit",
+                ),
             ],
         )
 
