@@ -174,6 +174,12 @@ window-rule {
     max-height 500
 }
 
+// LocalSend — убираем белый заголовок Flutter
+window-rule {
+    match app-id="localsend"
+    draw-border-with-background false
+}
+
 window-rule {
     match app-id="google-chrome"
     match app-id="com.obsproject.Studio"
