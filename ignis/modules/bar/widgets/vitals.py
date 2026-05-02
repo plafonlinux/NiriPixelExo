@@ -38,7 +38,7 @@ def _read_sensors():
 
 
 _TEMP_DEAD_ZONE = 1.0
-_PWR_DEAD_ZONE = 5
+_PWR_DEAD_ZONE = 10
 
 
 class Vitals:
@@ -140,7 +140,7 @@ class Vitals:
         self._ssd_shown = self._maybe_update_temp(ssd_t, self._ssd_shown)
 
         self._pwr_history.append(pwr_w)
-        if len(self._pwr_history) > 3:
+        if len(self._pwr_history) > 5:
             self._pwr_history.pop(0)
         avg_pwr = round(sum(self._pwr_history) / len(self._pwr_history))
         if self._pwr_shown < 0 or abs(avg_pwr - self._pwr_shown) >= _PWR_DEAD_ZONE:
