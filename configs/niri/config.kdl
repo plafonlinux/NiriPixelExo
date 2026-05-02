@@ -363,6 +363,11 @@ binds {
     Print      { screenshot; }
     Ctrl+Print { screenshot-screen; }
     Alt+Print  { screenshot-window; }
+
+    // ── Запись видео ──────────────────────────
+    Mod+Shift+Z { spawn "ignis" "run-command" "recorder-record-screen"; }
+    Mod+Shift+S { spawn "ignis" "run-command" "recorder-record-region"; }
+    Mod+Shift+W { spawn "ignis" "run-command" "recorder-record-portal"; }
 }
 
 // ─────────────────────────────────────────────

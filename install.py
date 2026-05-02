@@ -187,6 +187,8 @@ class InstallWorker:
             ("xwayland-satellite", "xwayland-satellite",  ["xwayland-satellite"],        "xwayland-satellite", None,                      False),
             ("hyprlock",           "hyprlock",            ["hyprlock", "hyprland-lock"], None,                 None,                      False),
             ("kitty",              "kitty",               ["kitty"],                     None,                 None,                      False),
+            ("gpu-screen-recorder","gpu-screen-recorder", ["gpu-screen-recorder-cli"],   None,                 None,                      False),
+            ("slurp",              "slurp",               ["slurp"],                     None,                 None,                      False),
         ]
         if self.install_starship:
             tools.append(
