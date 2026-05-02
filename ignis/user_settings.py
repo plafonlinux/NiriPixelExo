@@ -110,6 +110,7 @@ class UserSettings(OptionsManager):
         class Notifications(OptionsGroup):
             anchor: list = ["top"]
             compact_popup: bool = True
+            group_by_app: bool = True
 
         class Launcher(OptionsGroup):
             layout: str = "grid"
@@ -118,12 +119,28 @@ class UserSettings(OptionsManager):
             shell_corners: bool = True
             screen_corners: str = "disabled"
 
+        class QuickLaunch(OptionsGroup):
+            enabled: bool = True
+            show_chrome: bool = True
+            show_ai: bool = True
+            show_localsend: bool = True
+
+        class QuickToggles(OptionsGroup):
+            show_wifi: bool = True
+            show_bluetooth: bool = True
+            show_tuner: bool = True
+            show_gnome_settings: bool = False
+            show_thunderbird: bool = False
+            show_bitwarden: bool = False
+
         modules = Modules()
         bar = Bar()
         bar2 = Bar2()
         notifications = Notifications()
         launcher = Launcher()
         misc = Misc()
+        quicklaunch = QuickLaunch()
+        quicktoggles = QuickToggles()
 
     class Services(OptionsGroup):
         class Recorder(OptionsGroup):

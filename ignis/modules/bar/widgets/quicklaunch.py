@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 from ignis import widgets
 from gi.repository import Gtk, GdkPixbuf
+from user_settings import user_settings
 
 _LOCALSEND_SVG = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../../../assets/localsend.svg")
@@ -72,10 +73,16 @@ class QuickLaunch:
             valign="fill",
         )
 
+        ql = user_settings.interface.quicklaunch
+        chrome.set_visible(ql.show_chrome)
+        gemini.set_visible(ql.show_ai)
+        localsend.set_visible(ql.show_localsend)
+
         self.box = widgets.Box(
             css_classes=["quicklaunch", "pill-group"],
             child=[chrome, gemini, localsend],
             spacing=0,
+            visible=ql.enabled,
         )
 
     def widget(self):

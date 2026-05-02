@@ -89,6 +89,13 @@ class NotificationsCategory(widgets.Box):
                     ),
                 ),
                 widgets.Separator(),
+                SwitchRow(
+                    title="Группировать по приложению",
+                    description="Складывать уведомления от одного приложения в стопку.",
+                    active=user_settings.interface.notifications.group_by_app,
+                    on_change=lambda x, active: user_settings.interface.notifications.set_group_by_app(active),
+                ),
+                widgets.Separator(),
                 SettingsRow(
                     title="Тестовое уведомление",
                     child=[
@@ -210,6 +217,97 @@ class OSDCategory(widgets.Box):
         )
 
 
+class QuickLaunchCategory(widgets.Box):
+    def __init__(self):
+        ql = user_settings.interface.quicklaunch
+        super().__init__(
+            css_classes=["settings-category"],
+            vertical=True,
+            spacing=0,
+            child=[
+                CategoryLabel("QuickLaunch", "rocket_launch"),
+                SwitchRow(
+                    title="Включить блок",
+                    description="Показывать блок быстрого запуска в центре панели.",
+                    active=ql.enabled,
+                    on_change=lambda x, active: ql.set_enabled(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Chrome",
+                    description="Показывать кнопку Google Chrome.",
+                    active=ql.show_chrome,
+                    on_change=lambda x, active: ql.set_show_chrome(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Gemini + Claude",
+                    description="Показывать кнопку запуска ИИ-вкладок.",
+                    active=ql.show_ai,
+                    on_change=lambda x, active: ql.set_show_ai(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="LocalSend",
+                    description="Показывать кнопку LocalSend.",
+                    active=ql.show_localsend,
+                    on_change=lambda x, active: ql.set_show_localsend(active),
+                ),
+            ],
+        )
+
+
+class QuickTogglesTilesCategory(widgets.Box):
+    def __init__(self):
+        qt = user_settings.interface.quicktoggles
+        super().__init__(
+            css_classes=["settings-category"],
+            vertical=True,
+            spacing=0,
+            child=[
+                CategoryLabel("Плитки QuickMenu", "grid_view"),
+                SwitchRow(
+                    title="Wi-Fi",
+                    description="Показывать плитку управления Wi-Fi.",
+                    active=qt.show_wifi,
+                    on_change=lambda x, active: qt.set_show_wifi(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Bluetooth",
+                    description="Показывать плитку управления Bluetooth.",
+                    active=qt.show_bluetooth,
+                    on_change=lambda x, active: qt.set_show_bluetooth(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Тюнер",
+                    description="Показывать плитку Тюнера.",
+                    active=qt.show_tuner,
+                    on_change=lambda x, active: qt.set_show_tuner(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Настройки GNOME",
+                    active=qt.show_gnome_settings,
+                    on_change=lambda x, active: qt.set_show_gnome_settings(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Thunderbird",
+                    active=qt.show_thunderbird,
+                    on_change=lambda x, active: qt.set_show_thunderbird(active),
+                ),
+                widgets.Separator(),
+                SwitchRow(
+                    title="Bitwarden",
+                    active=qt.show_bitwarden,
+                    on_change=lambda x, active: qt.set_show_bitwarden(active),
+                ),
+            ],
+        )
+
+
 class ServicesTab(widgets.Box):
     def __init__(self):
         super().__init__(
@@ -221,5 +319,7 @@ class ServicesTab(widgets.Box):
             width_request=800,
         )
         self.append(NotificationsCategory())
+        self.append(QuickLaunchCategory())
+        self.append(QuickTogglesTilesCategory())
         self.append(RecordingCategory())
         self.append(OSDCategory())

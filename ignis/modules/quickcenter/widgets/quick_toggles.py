@@ -4,6 +4,7 @@ import os
 from gi.repository import GLib
 from ignis import widgets, utils
 from ignis.services.network import NetworkService
+from user_settings import user_settings
 
 
 network = NetworkService.get_default()
@@ -210,9 +211,13 @@ class BtTile(widgets.Box):
 
 class QuickToggles(widgets.Box):
     def __init__(self):
+        qt = user_settings.interface.quicktoggles
+
         wifi_tile = WiFiTile()
+        wifi_tile.set_visible(qt.show_wifi)
+
         bt_tile = BtTile()
-        bt_tile.set_visible(_bt_available())
+        bt_tile.set_visible(qt.show_bluetooth and _bt_available())
 
         tuner_tile = LauncherTile(
             icon="tune",
@@ -220,6 +225,8 @@ class QuickToggles(widgets.Box):
             subtitle="Управление системой",
             command=["tuner"],
         )
+        tuner_tile.set_visible(qt.show_tuner)
+
         gnome_tile = LauncherTile(
             icon="settings_applications",
             label="Настройки GNOME",
@@ -227,6 +234,7 @@ class QuickToggles(widgets.Box):
             command=["gnome-control-center"],
             env={**os.environ, "XDG_CURRENT_DESKTOP": "GNOME"},
         )
+        gnome_tile.set_visible(qt.show_gnome_settings)
 
         thunderbird_tile = LauncherTile(
             icon="mail",
@@ -234,12 +242,15 @@ class QuickToggles(widgets.Box):
             subtitle="Почта",
             command=["flatpak", "run", "org.mozilla.Thunderbird"],
         )
+        thunderbird_tile.set_visible(qt.show_thunderbird)
+
         bitwarden_tile = LauncherTile(
             icon="lock",
             label="Bitwarden",
             subtitle="Пароли",
             command=["flatpak", "run", "com.bitwarden.desktop"],
         )
+        bitwarden_tile.set_visible(qt.show_bitwarden)
 
         row1 = widgets.Box(
             css_classes=["quick-tiles-row"],
@@ -247,6 +258,7 @@ class QuickToggles(widgets.Box):
             homogeneous=True,
             spacing=8,
             child=[wifi_tile, bt_tile],
+            visible=(qt.show_wifi or (qt.show_bluetooth and _bt_available())),
         )
         row2 = widgets.Box(
             css_classes=["quick-tiles-row"],
@@ -254,6 +266,7 @@ class QuickToggles(widgets.Box):
             homogeneous=True,
             spacing=8,
             child=[tuner_tile, gnome_tile],
+            visible=(qt.show_tuner or qt.show_gnome_settings),
         )
         row3 = widgets.Box(
             css_classes=["quick-tiles-row"],
@@ -261,6 +274,7 @@ class QuickToggles(widgets.Box):
             homogeneous=True,
             spacing=8,
             child=[thunderbird_tile, bitwarden_tile],
+            visible=(qt.show_thunderbird or qt.show_bitwarden),
         )
 
         super().__init__(

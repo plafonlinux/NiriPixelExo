@@ -3,6 +3,7 @@ from ignis.services.notifications import Notification, NotificationService
 from ignis.window_manager import WindowManager
 from gi.repository import GLib, Gtk
 from ...notifications import ExoNotification
+from user_settings import user_settings
 
 notifications = NotificationService.get_default()
 window_manager = WindowManager.get_default()
@@ -144,28 +145,34 @@ class Notifications(widgets.Box):
         )
 
     def _load_existing(self) -> None:
-        # Group notifications by app, preserving newest-first order
-        groups_ordered: list[tuple[str, list[Notification]]] = []
-        seen: dict[str, int] = {}
-        for n in notifications.notifications:  # newest first
-            key = (n.app_name or "").lower()
-            if key not in seen:
-                seen[key] = len(groups_ordered)
-                groups_ordered.append((key, []))
-            groups_ordered[seen[key]][1].append(n)
+        group_by_app = user_settings.interface.notifications.group_by_app
 
-        # Prepend from oldest group to newest so newest ends on top
-        for key, notifs in reversed(groups_ordered):
-            group = AppGroup(notifs[0])
-            for n in notifs[1:]:
-                group.add_old(n)
-            group.connect_on_empty(lambda k=key: self._groups.pop(k, None))
-            self._groups[key] = group
-            self.prepend(group)
+        if group_by_app:
+            groups_ordered: list[tuple[str, list[Notification]]] = []
+            seen: dict[str, int] = {}
+            for n in notifications.notifications:
+                key = (n.app_name or "").lower()
+                if key not in seen:
+                    seen[key] = len(groups_ordered)
+                    groups_ordered.append((key, []))
+                groups_ordered[seen[key]][1].append(n)
+            for key, notifs in reversed(groups_ordered):
+                group = AppGroup(notifs[0])
+                for n in notifs[1:]:
+                    group.add_old(n)
+                group.connect_on_empty(lambda k=key: self._groups.pop(k, None))
+                self._groups[key] = group
+                self.prepend(group)
+        else:
+            for n in reversed(notifications.notifications):
+                group = AppGroup(n)
+                self._groups[id(n)] = group
+                self.prepend(group)
 
     def _on_notified(self, notification: Notification) -> None:
-        key = (notification.app_name or "").lower()
-        existing = self._groups.get(key)
+        group_by_app = user_settings.interface.notifications.group_by_app
+        key = (notification.app_name or "").lower() if group_by_app else id(notification)
+        existing = self._groups.get(key) if group_by_app else None
         if existing and not existing.is_empty:
             existing.add_new(notification)
         else:
