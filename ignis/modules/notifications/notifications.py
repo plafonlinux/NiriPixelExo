@@ -9,6 +9,23 @@ from modules.m3components import Button
 from gi.repository import Gtk, Gdk
 
 
+_SCREENSHOT_KEYWORDS = ("screenshot", "скриншот", "снимок экрана")
+
+
+def _translate_if_screenshot(summary: str, body: str) -> tuple[str, str]:
+    combined = f"{summary} {body}".lower()
+    if not any(kw in combined for kw in _SCREENSHOT_KEYWORDS):
+        return summary, body
+    body_lower = body.lower()
+    if "you can paste" in body_lower or "clipboard" in body_lower:
+        translated_body = "Скопирован в буфер обмена"
+    elif body_lower.startswith("/") or "saved to" in body_lower:
+        translated_body = body
+    else:
+        translated_body = body
+    return "Скриншот сохранён", translated_body
+
+
 def _resolve_icon(icon: str | None) -> str:
     if not icon:
         return "dialog-information-symbolic"
@@ -24,19 +41,23 @@ def relative_time(timestamp: float) -> str:
     diff = int(time.time() - timestamp)
 
     if diff < 60:
-        return "now"
+        return "только что"
     elif diff < 3600:
-        return f"{diff // 60}m"
+        return f"{diff // 60} мин"
     elif diff < 86400:
-        return f"{diff // 3600}h"
+        return f"{diff // 3600} ч"
     else:
-        return f"{diff // 86400}d"
+        return f"{diff // 86400} д"
 
 
 class ExoNotification(widgets.Box):
     def __init__(self, notification: Notification, compact_popup: bool = False) -> None:
         self._timestamp = notification.time
         self._is_expanded = False
+
+        _display_summary, _display_body = _translate_if_screenshot(
+            notification.summary or "", notification.body or ""
+        )
 
         self._age_label = widgets.Label(
             css_classes=["notification-age"],
@@ -49,12 +70,12 @@ class ExoNotification(widgets.Box):
         self._body_label = (
             widgets.Label(
                 css_classes=["notification-body"],
-                label=notification.body,
+                label=_display_body,
                 halign="start",
                 ellipsize="end",
                 wrap_mode="word_char",
             )
-            if notification.body
+            if _display_body
             else None
         )
         if compact_popup:
@@ -105,7 +126,7 @@ class ExoNotification(widgets.Box):
                                 child=[
                                     widgets.Label(
                                         css_classes=["notification-summary"],
-                                        label=notification.summary,
+                                        label=_display_summary,
                                         halign="start",
                                         ellipsize="end",
                                     ),

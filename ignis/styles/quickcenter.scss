@@ -33,6 +33,22 @@
                     border-bottom-right-radius: 20px;
                 }
             }
+
+            .notification-group-more {
+                background-color: colors.$surface_container_low;
+                border-radius: 0 0 12px 12px;
+                padding: 4px 0px;
+                border-top: 1px solid rgba(colors.$outline_variant, 0.4);
+
+                &:hover {
+                    background-color: colors.$surface_container;
+                }
+
+                .notification-group-more-label {
+                    font-size: 8pt;
+                    color: colors.$on_surface_variant;
+                }
+            }
         }
     }
 
