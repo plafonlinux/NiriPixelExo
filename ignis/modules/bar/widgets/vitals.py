@@ -115,7 +115,7 @@ class Vitals:
         cpu = f"CPU          {self._cpu_shown}°C"
         gpu = f"GPU          {self._gpu_shown}°C"
         ssd = f"SSD          {self._ssd_shown}°C"
-        pwr = f"Потребление {self._pwr_shown}W"
+        pwr = f"PWR          {self._pwr_shown}W"
         mesa = f"Mesa         {self._mesa}"
 
         menu.append(cpu, f"app.vitals-cpu")
