@@ -163,6 +163,7 @@ class InstallWorker:
             self._step("Обновление пакетной базы",    self._s_apt_update)
             self._step("Проверка pip3",               self._s_pip)
             self._step("Системные пакеты",            self._s_system_pkgs)
+            self._step("Права записи экрана",         self._s_recorder_caps)
             self._step("Установка ignis",             self._s_ignis)
             self._step("Установка matugen",           self._s_matugen)
             self._step("Копирование конфигурации",    self._s_copy_config)
@@ -292,6 +293,14 @@ class InstallWorker:
             self._emit(f"  Загрузка не удалась: {e}")
 
         return False
+
+    def _s_recorder_caps(self):
+        """Дать gsr-kms-server права на KMS без polkit/pkexec."""
+        kms = "/usr/bin/gsr-kms-server"
+        if not Path(kms).exists():
+            self._emit("  gsr-kms-server не найден, пропускаю")
+            return
+        self._sh(self._priv() + ["setcap", "cap_sys_admin+ep", kms])
 
     def _s_extra_configs(self):
         def copy_if_missing(src: Path, dst: Path):
