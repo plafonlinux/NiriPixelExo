@@ -1,8 +1,8 @@
 import subprocess
 import threading
 from ignis import widgets
-from ignis.menu_model import IgnisMenuModel, IgnisMenuItem, IgnisMenuSeparator
-from gi.repository import GLib
+from ignis.app import IgnisApp
+from gi.repository import GLib, Gio, Gtk
 
 
 def _run(cmd):
@@ -51,6 +51,18 @@ class Vitals:
         self._ssd_shown: str = "--"
         self._pwr_shown: int = -1
 
+        app = IgnisApp.get_initialized()
+        for name in ("vitals-cpu", "vitals-gpu", "vitals-ssd", "vitals-pwr", "vitals-mesa"):
+            if not app.has_action(name):
+                action = Gio.SimpleAction.new(name, None)
+                app.add_action(action)
+        if not app.has_action("vitals-btop"):
+            btop_action = Gio.SimpleAction.new("vitals-btop", None)
+            btop_action.connect("activate", lambda *a: subprocess.Popen(
+                ["kitty", "-e", "btop"], start_new_session=True
+            ))
+            app.add_action(btop_action)
+
         self._icon = widgets.Label(
             label="device_thermostat",
             css_classes=["vitals-icon"],
@@ -98,42 +110,27 @@ class Vitals:
         return shown
 
     def _on_clicked(self, btn):
-        menu_items = [
-            IgnisMenuItem(
-                label=f"CPU          {self._cpu_shown}°C",
-                on_activate=lambda *a: None,
-            ),
-            IgnisMenuItem(
-                label=f"GPU          {self._gpu_shown}°C",
-                on_activate=lambda *a: None,
-            ),
-            IgnisMenuItem(
-                label=f"SSD          {self._ssd_shown}°C",
-                on_activate=lambda *a: None,
-            ),
-            IgnisMenuItem(
-                label=f"Потребление {self._pwr_shown}W",
-                on_activate=lambda *a: None,
-            ),
-            IgnisMenuItem(
-                label=f"Mesa         {self._mesa}",
-                on_activate=lambda *a: None,
-            ),
-            IgnisMenuSeparator(),
-            IgnisMenuItem(
-                label="Открыть btop",
-                on_activate=lambda *a: subprocess.Popen(
-                    ["kitty", "-e", "btop"], start_new_session=True
-                ),
-            ),
-        ]
+        menu = Gio.Menu()
 
-        model = IgnisMenuModel(*menu_items)
-        popover = widgets.PopoverMenu(model=model, css_classes=["vitals-popover"])
-        container = btn.get_child()
-        if container and hasattr(container, "add_overlay"):
-            container.add_overlay(popover)
-            popover.popup()
+        cpu = f"CPU          {self._cpu_shown}°C"
+        gpu = f"GPU          {self._gpu_shown}°C"
+        ssd = f"SSD          {self._ssd_shown}°C"
+        pwr = f"Потребление {self._pwr_shown}W"
+        mesa = f"Mesa         {self._mesa}"
+
+        menu.append(cpu, f"app.vitals-cpu")
+        menu.append(gpu, f"app.vitals-gpu")
+        menu.append(ssd, f"app.vitals-ssd")
+        menu.append(pwr, f"app.vitals-pwr")
+        menu.append(mesa, f"app.vitals-mesa")
+
+        section = Gio.Menu()
+        section.append("Открыть btop", "app.vitals-btop")
+        menu.append_section(None, section)
+
+        popover = Gtk.PopoverMenu.new_from_model(menu)
+        popover.set_parent(btn)
+        popover.popup()
 
     def _update(self):
         cpu_t, gpu_t, ssd_t, pwr_w = _read_sensors()
