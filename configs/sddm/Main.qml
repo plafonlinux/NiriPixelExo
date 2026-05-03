@@ -258,6 +258,7 @@ Rectangle {
     FontLoader { id: fontRegular; source: "assets/fonts/FlexRounded-R.ttf" }
     FontLoader { id: fontMedium; source: "assets/fonts/FlexRounded-M.ttf" }
     FontLoader { id: fontBold; source: "assets/fonts/FlexRounded-B.ttf" }
+    FontLoader { id: fontGoogleSansFlex; source: "assets/fonts/google_sans_flex.ttf" }
 
     Image {
         id: backgroundImage
@@ -345,7 +346,7 @@ Rectangle {
             anchors.centerIn: parent
             backgroundSource: config.background
             baseAccent: container.extractedAccent
-            fontFamily: fontRegular.name
+            fontFamily: fontGoogleSansFlex.name
             opacity: container.uiReady ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 300 } }
         }
